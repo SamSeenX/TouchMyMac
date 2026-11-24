@@ -57,6 +57,7 @@ public final class PopoverViewController: NSViewController, NetworkManagerDelega
     }
 
     public func updateQR() {
+        _ = NetworkManager.shared.refreshIP()
         let ip = NetworkManager.shared.activeIP
         let port = NetworkManager.shared.port
         let urlStr = "http://\(ip):\(port)"

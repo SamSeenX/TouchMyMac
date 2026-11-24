@@ -7,10 +7,11 @@ It runs as a native macOS `.app` bundle, requires zero mobile store installation
 ## 2. Technical Architecture
 
 ### 2.1 Native macOS Host (`TouchMyMac.app`)
-- Packaged as a standard macOS application bundle with `Contents/MacOS/TouchMyMac` launcher and `Info.plist`.
-- Host engine built in Python 3 using standard library plus pre-installed `websockets`.
-- Native Input Bridge: Directly binds to macOS `ApplicationServices.framework` via `ctypes` (`CGEventCreateMouseEvent`, `CGEventPost`, `CGEventCreateScrollWheelEvent`, `CGEventKeyboardSetUnicodeString`).
-- Native GUI: Lightweight Cocoa/Tkinter window that renders the connection QR code and live connection telemetry.
+- Packaged as a standard macOS menu bar application bundle (`LSUIElement = true`) with compiled ARM64 Swift binary and signed `Info.plist`.
+- Zero third-party runtime dependencies: built entirely using Apple Foundation, AppKit, Network framework, CoreImage, and CoreGraphics.
+- Local Network Privacy compliance: Declares `NSLocalNetworkUsageDescription` and seals bundle resources with code-signing for macOS Sequoia support.
+- Native Input Bridge: Directly binds to macOS `CoreGraphics` (`CGEvent`, `CGEventPost`, scroll events, Unicode key injection, media key dispatch).
+- Native GUI: Menu bar status item (`NSStatusItem`) resident with an interactive dropdown `NSPopover` rendering live QR codes generated via `CIQRCodeGenerator`. Dynamic IP refresh ensures the QR code always reflects the latest Wi-Fi address.
 
 ### 2.2 Low-Latency Communications Layer
 - Local HTTP Server: Serves the static web client assets (Vanilla HTML/CSS/JS).

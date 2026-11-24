@@ -4,67 +4,117 @@
 <dict>
 	<key>files</key>
 	<dict>
-		<key>Resources/Assets.car</key>
+		<key>Resources/web/css/decks.css</key>
 		<data>
-		/m5QFBoYBxusqWmIF5lREKnJPH0=
+		DuscF4JMkCNW6AatSZLGXIMbdTI=
 		</data>
-		<key>Resources/Scripts/main.scpt</key>
+		<key>Resources/web/css/layout.css</key>
 		<data>
-		MuX3c6fTVOIsnOiL5AcivWwDXR8=
+		+arFPsShYi8kkzwbjPx2gLDbvcc=
 		</data>
-		<key>Resources/applet.icns</key>
+		<key>Resources/web/css/tokens.css</key>
 		<data>
-		CymnISHkDGTpYC+B2UFbK274PTM=
+		Onx1UwaCC6hxnZ6AYzjVJyIbNtk=
 		</data>
-		<key>Resources/applet.rsrc</key>
+		<key>Resources/web/index.html</key>
 		<data>
-		dKhr+IMgShqRZxwhH3dAtNiIqYE=
+		xW8tZ4zDBXt9JB+JKnjTnd9MYUQ=
+		</data>
+		<key>Resources/web/js/app.js</key>
+		<data>
+		RNp6uyXS27YMpA3kK0tktkH25dA=
+		</data>
+		<key>Resources/web/js/decks.js</key>
+		<data>
+		9U8P3Ht0f8voxZHN9z4nk5y+mUg=
+		</data>
+		<key>Resources/web/js/event_bus.js</key>
+		<data>
+		Z0XOxFtTophFQ6jItDESfiC4vMY=
+		</data>
+		<key>Resources/web/js/keyboard.js</key>
+		<data>
+		JorU54TEuDWMfhVAIh0txbuICYs=
+		</data>
+		<key>Resources/web/js/socket.js</key>
+		<data>
+		MoRvEQC55kcZcJ6r6mdcWKIxndM=
+		</data>
+		<key>Resources/web/js/touchpad.js</key>
+		<data>
+		/IQt4s95hMjESO5lO3Jz6Zt/aAU=
 		</data>
 	</dict>
 	<key>files2</key>
 	<dict>
-		<key>Resources/Assets.car</key>
+		<key>Resources/web/css/decks.css</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			/m5QFBoYBxusqWmIF5lREKnJPH0=
-			</data>
 			<key>hash2</key>
 			<data>
-			9b3lZR542sNAzn5DUZzCKq2VNiZggsC813cgH5gvtnU=
+			abJlZiQ8inmyJ+yuFHzGkEYLZ+aXv7o+x8anbv5SCFs=
 			</data>
 		</dict>
-		<key>Resources/Scripts/main.scpt</key>
+		<key>Resources/web/css/layout.css</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			MuX3c6fTVOIsnOiL5AcivWwDXR8=
-			</data>
 			<key>hash2</key>
 			<data>
-			n33g6cXcwC3mWVk6uaAZBZP5WpykLbjb1sUV0qNH+wI=
+			icDfnCx7JkwytZoe22obq7hnNt/5nYC69Mgfefwwntc=
 			</data>
 		</dict>
-		<key>Resources/applet.icns</key>
+		<key>Resources/web/css/tokens.css</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			CymnISHkDGTpYC+B2UFbK274PTM=
-			</data>
 			<key>hash2</key>
 			<data>
-			cKwKNJdw/Q4LBp/l8/UitT/9YdrYnCAn+tJUUoKMXaY=
+			ndifUXPYOSC3HivGJkDEyRahnrrZHaZiAz7HYsIK0jg=
 			</data>
 		</dict>
-		<key>Resources/applet.rsrc</key>
+		<key>Resources/web/index.html</key>
 		<dict>
-			<key>hash</key>
-			<data>
-			dKhr+IMgShqRZxwhH3dAtNiIqYE=
-			</data>
 			<key>hash2</key>
 			<data>
-			WiEc2fP60hsgZv0w8+nw/C5rmMrwfWCn2LyHxgSG5mk=
+			pq60MZM+dETYyIJ4HqChhBXlH0IHUrrB0VRa4F1Rjjk=
+			</data>
+		</dict>
+		<key>Resources/web/js/app.js</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Ee+o2xPsF9b6bIqVkkYCmtRNPGQVOSKwmyTLLfEUk5k=
+			</data>
+		</dict>
+		<key>Resources/web/js/decks.js</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			CA+obVSjHqavZOb3QNQ2f80grJYjDm6hY4awTkAHz7Y=
+			</data>
+		</dict>
+		<key>Resources/web/js/event_bus.js</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			bSs9f8AyZvG7Vzr7o9v6zushIoUIesEsTcDypdR1L5Y=
+			</data>
+		</dict>
+		<key>Resources/web/js/keyboard.js</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			uNpd833jaXERIrI/zjuCKtRW/E/IO2UgdjkbyQEL5/g=
+			</data>
+		</dict>
+		<key>Resources/web/js/socket.js</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			/8PNY4Lb94ktyqRZpmXXdj95mtc/9cwdrBeKsTC9xHk=
+			</data>
+		</dict>
+		<key>Resources/web/js/touchpad.js</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			/7x6AlQCtbEM7rhlsX61gGGbePEsLlYDufprV3KBjoI=
 			</data>
 		</dict>
 	</dict>

@@ -23,6 +23,12 @@ public final class NetworkManager {
         bindListener(startingPort: 8080)
     }
 
+    @discardableResult
+    public func refreshIP() -> String {
+        self.activeIP = detectLocalIP()
+        return self.activeIP
+    }
+
     private func detectLocalIP() -> String {
         var address = "127.0.0.1"
         var ifaddr: UnsafeMutablePointer<ifaddrs>?
@@ -69,8 +75,14 @@ public final class NetworkManager {
 
     private func readRequest(_ conn: NWConnection) {
         conn.receive(minimumIncompleteLength: 1, maximumLength: 65536) { [weak self] data, _, isComplete, _ in
-            guard let self = self, let data = data, !data.isEmpty else { return }
-            guard let reqStr = String(data: data, encoding: .utf8) else { return }
+            guard let self = self, let data = data, !data.isEmpty else {
+                if isComplete { conn.cancel() }
+                return
+            }
+            guard let reqStr = String(data: data, encoding: .utf8) else {
+                conn.cancel()
+                return
+            }
 
             if reqStr.contains("Upgrade: websocket") || reqStr.contains("upgrade: websocket") {
                 self.upgradeWebSocket(conn: conn, request: reqStr)
@@ -82,9 +94,9 @@ public final class NetworkManager {
 
     private func serveHTTP(conn: NWConnection, request: String) {
         let lines = request.components(separatedBy: "\r\n")
-        guard let first = lines.first else { return }
+        guard let first = lines.first else { conn.cancel(); return }
         let parts = first.components(separatedBy: " ")
-        guard parts.count >= 2 else { return }
+        guard parts.count >= 2 else { conn.cancel(); return }
 
         var path = parts[1].components(separatedBy: "?").first ?? "/"
         if path == "/" { path = "/index.html" }

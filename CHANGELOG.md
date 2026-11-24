@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0] - 2026-11-24
+### Added
+- Added `NSLocalNetworkUsageDescription` and `NSAppTransportSecurity` to `Info.plist` for macOS Sequoia Local Network Privacy compliance.
+- Added ad-hoc bundle code-signing sealing all web resources and binding `Info.plist`.
+- Added dynamic local IP re-detection (`refreshIP()`) on every popover open to handle DHCP lease changes.
+- Added socket cleanup and immediate connection cancellation for malformed or TLS handshake attempts.
+
 ## [2.0.0] - 2026-11-24
 ### Added
 - Re-architected into a 100% native Swift menu bar application with zero third-party dependencies.
