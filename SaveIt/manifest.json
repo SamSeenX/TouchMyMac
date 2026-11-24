@@ -26,7 +26,8 @@
     "activeTab",
     "storage",
     "unlimitedStorage",
-    "contextMenus"
+    "contextMenus",
+    "debugger"
   ],
   "host_permissions": [
     "http://*/*",

@@ -62,51 +62,61 @@ export function getFaviconUrl(pageUrl, existingFavicon) {
   }
 }
 
-// Opens a brief tab with the user's active session, captures the view, and auto-closes
-export async function captureViaQuickTab(url) {
+// Opens a secret background tab (active: false), snapshots via debugger, and auto-closes
+export async function captureViaBackgroundTab(url) {
   if (!chrome?.tabs?.create || !url || !url.startsWith('http')) return null
 
-  let newTabId = null
-  let originalTabId = null
-
+  // If already open in an active tab, capture instantly without opening anything
   try {
     const activeTabs = await chrome.tabs.query({ active: true, currentWindow: true })
     const norm = (u) => String(u || '').replace(/#.*$/, '').replace(/\/$/, '').toLowerCase()
     const targetNorm = norm(url)
 
-    // If tab is already open and active, capture instantly without creating a tab
     const existingActive = activeTabs.find(t => t.url && norm(t.url) === targetNorm)
     if (existingActive && existingActive.windowId) {
       const snap = await chrome.tabs.captureVisibleTab(existingActive.windowId, { format: 'jpeg', quality: 80 })
       return await compressThumbnail(snap, 480, 270)
     }
+  } catch {}
 
-    const currentTab = activeTabs[0]
-    originalTabId = currentTab ? currentTab.id : null
+  let tabId = null
+  let attached = false
 
-    // Open temporary tab focused with user session/cookies
-    const newTab = await chrome.tabs.create({ url, active: true })
-    newTabId = newTab.id
+  try {
+    // 1. Open strictly in background: active is FALSE (user stays on dashboard!)
+    const tab = await chrome.tabs.create({ url, active: false })
+    tabId = tab.id
 
-    // Wait until DOM and content are complete
-    await waitForTabComplete(newTabId, 6500)
-    await new Promise(r => setTimeout(r, 450))
+    // 2. Attach debugger to the background tab
+    await chrome.debugger.attach({ tabId }, '1.3')
+    attached = true
+    await chrome.debugger.sendCommand({ tabId }, 'Page.enable')
 
-    const snap = await chrome.tabs.captureVisibleTab(newTab.windowId, { format: 'jpeg', quality: 80 })
-    if (snap) {
-      return await compressThumbnail(snap, 480, 270)
+    // 3. Wait for real destination URL to complete loading
+    await waitForTabComplete(tabId, 7500)
+    await new Promise(r => setTimeout(r, 650))
+
+    // 4. Capture screenshot directly from Blink compositor
+    const res = await chrome.debugger.sendCommand({ tabId }, 'Page.captureScreenshot', {
+      format: 'jpeg',
+      quality: 80
+    })
+
+    if (res && res.data) {
+      const dataUrl = `data:image/jpeg;base64,${res.data}`
+      return await compressThumbnail(dataUrl, 480, 270)
     }
   } catch (err) {
-    console.warn('Quick tab session capture error:', err)
+    console.warn('Background debugger capture:', err)
   } finally {
-    if (newTabId !== null) {
+    if (attached && tabId !== null) {
       try {
-        await chrome.tabs.remove(newTabId)
+        await chrome.debugger.detach({ tabId })
       } catch {}
     }
-    if (originalTabId !== null) {
+    if (tabId !== null) {
       try {
-        await chrome.tabs.update(originalTabId, { active: true })
+        await chrome.tabs.remove(tabId)
       } catch {}
     }
   }
@@ -114,7 +124,7 @@ export async function captureViaQuickTab(url) {
   return null
 }
 
-function waitForTabComplete(tabId, timeoutMs = 6500) {
+function waitForTabComplete(tabId, timeoutMs = 7500) {
   return new Promise((resolve) => {
     let resolved = false
     const timer = setTimeout(() => {
@@ -125,13 +135,16 @@ function waitForTabComplete(tabId, timeoutMs = 6500) {
       }
     }, timeoutMs)
 
-    function listener(id, changeInfo) {
+    function listener(id, changeInfo, tab) {
       if (id === tabId && changeInfo.status === 'complete') {
-        if (!resolved) {
-          resolved = true
-          clearTimeout(timer)
-          chrome.tabs.onUpdated.removeListener(listener)
-          resolve()
+        const tabUrl = tab?.url || ''
+        if (tabUrl.startsWith('http://') || tabUrl.startsWith('https://')) {
+          if (!resolved) {
+            resolved = true
+            clearTimeout(timer)
+            chrome.tabs.onUpdated.removeListener(listener)
+            resolve()
+          }
         }
       }
     }

@@ -3,7 +3,8 @@
 ## [Unreleased] - 2026-11-24
 
 ### Added
-* Quick-tab session capture for card refreshes using real browser session, cookies, and Cloudflare clearance with automatic focus restoration
+* True background tab capture via Chrome debugger API: snapshots background tabs with user session without switching focus away from dashboard
+* Strict OpenGraph banner filter: rejects icons, favicons, and apple-touch-icon assets so only genuine preview images are accepted
 * Real visual webpage screenshot capture engine via headless rendering with automatic pre-warm retry
 * Button state locking and busy spinner during single card thumbnail refreshes
 * 100% Silent headless thumbnail engine: zero window popups or flashing windows

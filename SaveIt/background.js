@@ -72,17 +72,26 @@ async function handleExtractPreview(url) {
     if (!res.ok) return null
 
     const html = await res.text()
+    // Strictly match real OpenGraph and Twitter preview banners
     const metaRegex = /<meta[^>]+(?:property|name)=["'](?:og:image|twitter:image|og:image:url|og:image:secure_url)["'][^>]+content=["']([^"']+)["']/i
-    const linkRegex = /<link[^>]+rel=["'](?:image_src|apple-touch-icon)["'][^>]+href=["']([^"']+)["']/i
+    const linkRegex = /<link[^>]+rel=["']image_src["'][^>]+href=["']([^"']+)["']/i
 
     const match = html.match(metaRegex) || html.match(linkRegex)
     if (!match || !match[1]) return null
 
-    const imgUrl = new URL(match[1], url).href
+    const rawPath = match[1].trim()
+    const lower = rawPath.toLowerCase()
+    if (lower.includes('favicon') || lower.includes('apple-touch-icon') || lower.endsWith('.ico')) {
+      return null
+    }
+
+    const imgUrl = new URL(rawPath, url).href
     const imgRes = await fetch(imgUrl)
     if (!imgRes.ok) return null
 
     const blob = await imgRes.blob()
+    if (blob.size < 1500) return null
+
     const buffer = await blob.arrayBuffer()
     const bytes = new Uint8Array(buffer)
 
