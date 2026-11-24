@@ -1,0 +1,45 @@
+/* List View Density Styles for Bookmarks */
+
+.bookmarks-grid.density-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bookmarks-grid.density-list .bookmark-card {
+  flex-direction: row;
+  align-items: center;
+  padding: 6px 12px;
+  height: 56px;
+}
+
+.bookmarks-grid.density-list .card-thumbnail-wrap {
+  width: 76px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.bookmarks-grid.density-list .card-body {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px;
+}
+
+.bookmarks-grid.density-list .card-title {
+  font-size: 13px;
+  -webkit-line-clamp: 1;
+  margin-bottom: 0;
+}
+
+.bookmarks-grid.density-list .card-header-row {
+  margin-bottom: 0;
+}
+
+.bookmarks-grid.density-list .card-footer {
+  border-top: none;
+  padding: 0;
+  margin-left: auto;
+  gap: 14px;
+}

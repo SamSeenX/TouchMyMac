@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SaveIt - Bookmarks</title>
+  <link rel="stylesheet" href="src/styles/tokens.css">
+  <link rel="stylesheet" href="src/styles/dropdown.css">
+  <link rel="stylesheet" href="src/styles/base.css">
+  <link rel="stylesheet" href="src/styles/sidebar.css">
+  <link rel="stylesheet" href="src/styles/grid.css">
+  <link rel="stylesheet" href="src/styles/list-view.css">
+  <link rel="stylesheet" href="src/styles/progress.css">
+  <link rel="stylesheet" href="src/styles/components.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Left Sidebar -->
+    <aside class="app-sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <img src="icons/icon-48.png" alt="SaveIt" class="brand-icon">
+          <span class="brand-title">SaveIt</span>
+        </div>
+        <button id="addFolderBtn" class="btn btn-ghost" title="Create Folder">+</button>
+      </div>
+
+      <div class="sidebar-scroll">
+        <div class="sidebar-section-title">Folders</div>
+        <ul id="folderList" class="sidebar-list"></ul>
+      </div>
+    </aside>
+
+    <!-- Main View -->
+    <main class="app-main">
+      <header class="top-navbar">
+        <div class="search-box">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search bookmarks by title or url... (Cmd+K)">
+        </div>
+
+        <div class="navbar-right">
+          <button id="batchThumbnailsBtn" class="btn btn-ghost" title="Fetch Missing Thumbnails">&#9889; Fetch Thumbnails</button>
+          <select id="densitySelect" class="select-control" title="Thumbnail Size & Layout">
+            <option value="lg">Large</option>
+            <option value="md">Medium</option>
+            <option value="sm">Small</option>
+            <option value="list">List View</option>
+          </select>
+          <select id="sortSelect" class="select-control">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="a-z">Title (A-Z)</option>
+            <option value="z-a">Title (Z-A)</option>
+          </select>
+          <button id="ioBtn" class="btn btn-ghost">Import / Export</button>
+          <button id="themeToggleBtn" class="btn btn-ghost" title="Toggle Theme">&#9680;</button>
+        </div>
+      </header>
+
+      <section class="content-scroll">
+        <div id="batchProgressBanner" class="batch-progress-banner" style="display: none;">
+          <div class="progress-info">
+            <span class="progress-icon">&#9889;</span>
+            <span id="batchProgressText">Generating thumbnails: 0/0</span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div id="batchProgressBar" class="progress-bar-fill"></div>
+          </div>
+          <button id="cancelBatchBtn" class="btn btn-ghost" style="padding: 4px 8px; font-size: 11px;">Stop</button>
+        </div>
+
+        <div class="content-header">
+          <div class="view-title-wrap">
+            <h1 id="viewTitle" class="view-title">All Bookmarks</h1>
+            <span id="viewCount" class="view-count">0 items</span>
+          </div>
+        </div>
+
+        <div id="bookmarkGrid" class="bookmarks-grid"></div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+          <div class="empty-state-icon">&#128278;</div>
+          <div class="empty-state-title">No bookmarks found</div>
+          <p>Save pages via the SaveIt extension icon or import your browser bookmarks.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Edit Bookmark Modal -->
+  <div id="editModal" class="modal-overlay">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Bookmark</h3>
+        <button id="closeEditModal" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editBookmarkId">
+        <div>
+          <label class="sidebar-section-title">Title</label>
+          <input type="text" id="editTitle" class="input-field">
+        </div>
+        <div>
+          <label class="sidebar-section-title">URL</label>
+          <input type="text" id="editUrl" class="input-field">
+        </div>
+        <div>
+          <label class="sidebar-section-title">Folder</label>
+          <div id="editFolderContainer"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelEditBtn" class="btn btn-ghost">Cancel</button>
+        <button id="saveEditBtn" class="btn btn-primary">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Folder Modal -->
+  <div id="folderModal" class="modal-overlay">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title">New Folder</h3>
+        <button id="closeFolderModal" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div>
+          <label class="sidebar-section-title">Folder Name</label>
+          <input type="text" id="newFolderName" class="input-field" placeholder="e.g. Projects, Recipes">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelFolderBtn" class="btn btn-ghost">Cancel</button>
+        <button id="createFolderSubmit" class="btn btn-primary">Create Folder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import / Export Modal -->
+  <div id="ioModal" class="modal-overlay"></div>
+
+  <script type="module" src="src/dashboard.js"></script>
+</body>
+</html>
