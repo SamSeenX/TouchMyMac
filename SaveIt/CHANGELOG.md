@@ -3,10 +3,12 @@
 ## [Unreleased] - 2026-11-24
 
 ### Added
+* 100% Local direct OpenGraph preview banner extractor: zero 3rd party screenshot proxy reliance
+* Active tab snapshot detector: captures tab viewports locally if matching URLs are open in Chrome
+* Host permissions for `http://*/*` and `https://*/*` allowing direct origin metadata requests
 * Batch thumbnail generator queue with live progress bar and stop control
 * Force regenerate option to re-fetch all thumbnails across imported bookmarks
 * Single-item thumbnail refresh button on every bookmark card
-* Pre-warm rendering delay ensuring mshots delivers full screenshots instead of placeholder logos
 * Native anchor link integration for middle-click and right-click browser navigation
 * External drag-and-drop support with URI list payloads
 * Custom stylized folder dropdown component with inline "+ Create Folder" input
@@ -19,7 +21,5 @@
 
 ### Fixed
 * Removed inline `onerror` attribute in `card.js` to eliminate Manifest V3 CSP violation errors
-* Added `host_permissions` for `https://s0.wp.com/*` in `manifest.json` to allow clean screenshot fetching
 * Added missing `contextMenus` permission to `manifest.json` for right-click saving
 * Fixed inner anchor and image drag collision in `card.js` using `draggable="false"`
-* Fixed mshots URL formatting by ensuring trailing slash and raw URL format to avoid 403 errors
