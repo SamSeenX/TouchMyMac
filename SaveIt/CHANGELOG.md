@@ -3,11 +3,13 @@
 ## [Unreleased] - 2026-11-24
 
 ### Added
-* Initial project scaffolding on branch `feature/visual-bookmarks-core`
-* Project documentation suite (README, BRAIN, RULES, SCOPE, CHROMEWEBSTORE)
-* Manifest V3 configuration with popup and dashboard entries
-* Multi-size icons (16px, 48px, 128px)
-* Native IndexedDB storage layer and folder data model
-* Quick-save popup interface with live thumbnail capture
-* Visual bookmark dashboard with folder navigation and instant search
-* Netscape Bookmark HTML and JSON import/export engine
+* Custom stylized folder dropdown component with inline "+ Create Folder" input
+* Drag and drop organization: drag bookmark cards directly onto sidebar folders to re-file
+* Smart "Recently Added" view in sidebar filtering bookmarks saved within the last 7 days
+* Four view density modes: Large previews, Medium previews, Small previews, and List view with tiny thumbnails
+* Full nested subfolder hierarchy import preservation from browser Netscape HTML files
+* Pure folder-centric architecture with tags removed for a cleaner workflow
+* Strict sub-200-line modular architecture across all JavaScript and CSS files
+
+### Fixed
+* Added missing `contextMenus` permission to `manifest.json` for right-click saving
