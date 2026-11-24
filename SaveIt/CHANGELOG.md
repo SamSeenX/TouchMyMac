@@ -3,6 +3,10 @@
 ## [Unreleased] - 2026-11-24
 
 ### Added
+* Batch thumbnail generator queue with live progress bar and stop control
+* Single-item thumbnail refresh button on every bookmark card
+* Native anchor link integration for middle-click and right-click browser navigation
+* External drag-and-drop support with URI list payloads
 * Custom stylized folder dropdown component with inline "+ Create Folder" input
 * Drag and drop organization: drag bookmark cards directly onto sidebar folders to re-file
 * Smart "Recently Added" view in sidebar filtering bookmarks saved within the last 7 days
