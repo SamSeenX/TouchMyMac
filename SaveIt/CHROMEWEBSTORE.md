@@ -21,3 +21,4 @@ SaveIt is a clean, visual bookmark manager for your browser. Instead of boring t
 * `activeTab`: Required to capture the visible tab viewport thumbnail when saving a bookmark.
 * `storage`: Required to save user preferences such as theme and sort order.
 * `unlimitedStorage`: Required to persist thumbnail images locally in IndexedDB without quota rejection.
+* `contextMenus`: Required to provide right-click options for saving any page or link directly.
