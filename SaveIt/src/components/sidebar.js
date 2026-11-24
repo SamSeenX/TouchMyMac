@@ -2,7 +2,7 @@
 
 import { escapeHtml } from '../utils/sanitize.js'
 
-export function setupSidebar({ folderListEl, onSelectFolder, onDropBookmark }) {
+export function setupSidebar({ folderListEl, onSelectFolder, onDropBookmark, onDeleteFolder, onAddSubfolder }) {
   let activeFolderId = 'folder_all'
 
   function render(folders, bookmarks) {
@@ -68,12 +68,22 @@ export function setupSidebar({ folderListEl, onSelectFolder, onDropBookmark }) {
     if (level > 0) li.style.paddingLeft = `${10 + level * 16}px`
 
     const colorStyle = color ? `style="color: ${color}"` : ''
+    const canManage = !isSystem && id !== 'folder_general'
+    const actionBtns = canManage ? `
+      <div class="folder-actions">
+        <button type="button" class="folder-action-btn" data-action="add-subfolder" data-id="${id}" title="Add Subfolder">+</button>
+        <button type="button" class="folder-action-btn delete-folder-btn" data-action="delete-folder" data-id="${id}" title="Delete Folder">&#128465;</button>
+      </div>` : ''
+
     li.innerHTML = `
       <div class="item-left">
         <span class="item-icon" ${colorStyle}>${icon}</span>
         <span class="item-name">${escapeHtml(name)}</span>
       </div>
-      <span class="item-badge">${count}</span>
+      <div class="item-right">
+        ${actionBtns}
+        <span class="item-badge">${count}</span>
+      </div>
     `
 
     // Drag-over drop target listeners
@@ -102,7 +112,24 @@ export function setupSidebar({ folderListEl, onSelectFolder, onDropBookmark }) {
   }
 
   folderListEl.addEventListener('click', (e) => {
+    const deleteBtn = e.target.closest('[data-action="delete-folder"]')
+    const addSubBtn = e.target.closest('[data-action="add-subfolder"]')
     const item = e.target.closest('.sidebar-item')
+
+    if (deleteBtn) {
+      e.stopPropagation()
+      const folderId = deleteBtn.getAttribute('data-id')
+      if (onDeleteFolder) onDeleteFolder(folderId)
+      return
+    }
+
+    if (addSubBtn) {
+      e.stopPropagation()
+      const folderId = addSubBtn.getAttribute('data-id')
+      if (onAddSubfolder) onAddSubfolder(folderId)
+      return
+    }
+
     if (item) {
       activeFolderId = item.getAttribute('data-id')
       onSelectFolder(activeFolderId)

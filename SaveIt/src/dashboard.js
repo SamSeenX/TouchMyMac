@@ -1,7 +1,7 @@
 // Dashboard main orchestrator with drag-drop, density, batch and single thumbnail refresh
 
 import { getBookmarks, filterBookmarks, updateBookmark, deleteBookmark } from './core/bookmarks.js'
-import { getFolders } from './core/folders.js'
+import { getFolders, deleteFolder } from './core/folders.js'
 import { bus } from './core/bus.js'
 import { renderCard } from './components/card.js'
 import { setupSidebar } from './components/sidebar.js'
@@ -10,30 +10,20 @@ import { setupModals } from './components/modal.js'
 import { setupIoModal } from './components/io-modal.js'
 import { setupBatchController } from './components/batch-controller.js'
 import { fetchExternalThumbnail } from './utils/thumbnail-generator.js'
+import { captureInteractiveTab } from './utils/capture.js'
 
 let allBookmarks = []
 let allFolders = []
 let activeState = { query: '', folderId: 'folder_all', sort: 'newest', density: 'lg' }
 
+const $ = (id) => document.getElementById(id)
 const el = {
-  grid: document.getElementById('bookmarkGrid'),
-  emptyState: document.getElementById('emptyState'),
-  viewTitle: document.getElementById('viewTitle'),
-  viewCount: document.getElementById('viewCount'),
-  searchInput: document.getElementById('searchInput'),
-  densitySelect: document.getElementById('densitySelect'),
-  sortSelect: document.getElementById('sortSelect'),
-  themeToggleBtn: document.getElementById('themeToggleBtn'),
-  folderList: document.getElementById('folderList'),
-  addFolderBtn: document.getElementById('addFolderBtn'),
-  editModal: document.getElementById('editModal'),
-  folderModal: document.getElementById('folderModal'),
-  ioBtn: document.getElementById('ioBtn'),
-  batchBtn: document.getElementById('batchThumbnailsBtn'),
-  batchBanner: document.getElementById('batchProgressBanner'),
-  batchText: document.getElementById('batchProgressText'),
-  batchBar: document.getElementById('batchProgressBar'),
-  cancelBatch: document.getElementById('cancelBatchBtn')
+  grid: $('bookmarkGrid'), emptyState: $('emptyState'), viewTitle: $('viewTitle'),
+  viewCount: $('viewCount'), searchInput: $('searchInput'), densitySelect: $('densitySelect'),
+  sortSelect: $('sortSelect'), themeToggleBtn: $('themeToggleBtn'), folderList: $('folderList'),
+  addFolderBtn: $('addFolderBtn'), editModal: $('editModal'), folderModal: $('folderModal'),
+  ioBtn: $('ioBtn'), batchBtn: $('batchThumbnailsBtn'), batchBanner: $('batchProgressBanner'),
+  batchText: $('batchProgressText'), batchBar: $('batchProgressBar'), cancelBatch: $('cancelBatchBtn')
 }
 
 let sidebarController = null
@@ -52,7 +42,15 @@ async function init() {
   sidebarController = setupSidebar({
     folderListEl: el.folderList,
     onSelectFolder: (id) => { activeState.folderId = id; updateView() },
-    onDropBookmark: async (bmId, folderId) => { await updateBookmark(bmId, { folderId }) }
+    onDropBookmark: async (bmId, folderId) => { await updateBookmark(bmId, { folderId }) },
+    onDeleteFolder: async (folderId) => {
+      const folder = allFolders.find(f => f.id === folderId)
+      if (confirm(`Delete folder "${folder?.name || ''}"? Bookmarks will move to General.`)) {
+        if (activeState.folderId === folderId) activeState.folderId = 'folder_all'
+        await deleteFolder(folderId)
+      }
+    },
+    onAddSubfolder: (parentId) => modalController.openFolder(parentId)
   })
 
   const toolbar = setupToolbar({
@@ -115,8 +113,10 @@ function updateView() {
     el.emptyState.style.display = 'block'
   } else {
     el.emptyState.style.display = 'none'
+    const folderMap = new Map(allFolders.map(f => [f.id, f.name]))
+    const showFolder = activeState.folderId === 'folder_all' || activeState.folderId === 'folder_recent'
     const fragment = document.createDocumentFragment()
-    filtered.forEach(bm => fragment.appendChild(renderCard(bm)))
+    filtered.forEach(bm => fragment.appendChild(renderCard(bm, folderMap.get(bm.folderId) || 'General', showFolder)))
     el.grid.appendChild(fragment)
   }
 }
@@ -131,11 +131,16 @@ function setupGridActions() {
 
     const openTrigger = e.target.closest('[data-action="open"]')
     const refreshBtn = e.target.closest('[data-action="refresh"]')
+    const snapBtn = e.target.closest('[data-action="snap"]')
+    const filterFolder = e.target.closest('[data-action="filter-folder"]')
     const copyBtn = e.target.closest('[data-action="copy"]')
     const editBtn = e.target.closest('[data-action="edit"]')
     const deleteBtn = e.target.closest('[data-action="delete"]')
 
-    if (openTrigger) {
+    if (filterFolder) {
+      activeState.folderId = filterFolder.getAttribute('data-folder-id')
+      updateView()
+    } else if (openTrigger) {
       window.open(bm.url, '_blank')
     } else if (refreshBtn) {
       refreshBtn.disabled = true
@@ -146,6 +151,16 @@ function setupGridActions() {
       } finally {
         refreshBtn.disabled = false
         refreshBtn.innerHTML = '&#128260;'
+      }
+    } else if (snapBtn) {
+      snapBtn.disabled = true
+      snapBtn.innerHTML = '&#9203;'
+      try {
+        const thumb = await captureInteractiveTab(bm.url, 2500)
+        if (thumb) await updateBookmark(id, { thumbnail: thumb })
+      } finally {
+        snapBtn.disabled = false
+        snapBtn.innerHTML = '&#128247;'
       }
     } else if (copyBtn) {
       await navigator.clipboard.writeText(bm.url)

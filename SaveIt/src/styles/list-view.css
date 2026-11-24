@@ -1,4 +1,24 @@
-/* List View Density Styles for Bookmarks */
+/* Grid Multi-Density Variations (Medium, Small, List) */
+
+.bookmarks-grid.density-md {
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 14px;
+}
+.bookmarks-grid.density-md .card-title {
+  font-size: 13px;
+}
+
+.bookmarks-grid.density-sm {
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+.bookmarks-grid.density-sm .card-title {
+  font-size: 12px;
+  -webkit-line-clamp: 1;
+}
+.bookmarks-grid.density-sm .card-footer {
+  padding: 4px 8px;
+}
 
 .bookmarks-grid.density-list {
   display: flex;

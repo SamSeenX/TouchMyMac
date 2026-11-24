@@ -63,8 +63,28 @@ export async function updateFolder(id, updates) {
 export async function deleteFolder(id) {
   const folder = await get('folders', id)
   if (!folder) return false
-  if (folder.system) throw new Error('Cannot delete system folders')
+  if (folder.system || folder.id === 'folder_general') {
+    throw new Error('Cannot delete system folders')
+  }
+
+  // Safely reassign bookmarks in this folder to General
+  const bookmarks = await getAll('bookmarks')
+  for (const bm of bookmarks) {
+    if (bm.folderId === id) {
+      await put('bookmarks', { ...bm, folderId: 'folder_general', updatedAt: Date.now() })
+    }
+  }
+
+  // Reassign any subfolders to top-level
+  const allFolders = await getAll('folders')
+  for (const f of allFolders) {
+    if (f.parentId === id) {
+      await put('folders', { ...f, parentId: null, updatedAt: Date.now() })
+    }
+  }
+
   await del('folders', id)
+  bus.emit('bookmarks:changed', { action: 'update' })
   bus.emit('folders:changed', { action: 'delete', id })
   return true
 }
