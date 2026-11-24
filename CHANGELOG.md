@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.0] - 2026-11-24
+### Added
+- Implemented guided 1-click Accessibility onboarding flow in `PopoverView.swift`.
+- Added live visual permission indicator that switches to a green light when Accessibility is granted.
+- Added native system permission prompt invocation on launch and 1-click routing to System Settings.
+
 ## [2.3.0] - 2026-11-24
 ### Added
 - Implemented Google Chrome Private Network Access (PNA) compliance in `NetworkManager.swift`.
