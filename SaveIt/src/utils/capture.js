@@ -50,94 +50,63 @@ export function getFaviconUrl(pageUrl, existingFavicon) {
   }
 }
 
-// Opens a secret background tab (active: false), snapshots via debugger, and auto-closes
-export async function captureViaBackgroundTab(url) {
-  if (!chrome?.tabs?.create || !url || !url.startsWith('http')) return null
-
-  // If already open in an active tab, capture instantly without opening anything
+// Dedicated Blink compositor screenshot helper via Chrome Debugger API
+async function snapshotTabWithDebugger({ url, active, delayMs = 600 }) {
+  let tabId = null, originalTabId = null, attached = false
   try {
-    const activeTabs = await chrome.tabs.query({ active: true, currentWindow: true })
-    const norm = (u) => String(u || '').replace(/#.*$/, '').replace(/\/$/, '').toLowerCase()
-    const targetNorm = norm(url)
-
-    const existingActive = activeTabs.find(t => t.url && norm(t.url) === targetNorm)
-    if (existingActive && existingActive.windowId) {
-      const snap = await chrome.tabs.captureVisibleTab(existingActive.windowId, { format: 'jpeg', quality: 80 })
-      return await compressThumbnail(snap, 480, 270)
+    if (active) {
+      const activeTabs = await chrome.tabs.query({ active: true, currentWindow: true })
+      originalTabId = activeTabs[0]?.id || null
     }
-  } catch {}
 
-  let tabId = null
-  let attached = false
-
-  try {
-    // 1. Open strictly in background: active is FALSE (user stays on dashboard!)
-    const tab = await chrome.tabs.create({ url, active: false })
+    const tab = await chrome.tabs.create({ url, active })
     tabId = tab.id
 
-    // 2. Attach debugger to the background tab
     await chrome.debugger.attach({ tabId }, '1.3')
     attached = true
     await chrome.debugger.sendCommand({ tabId }, 'Page.enable')
 
-    // 3. Wait for real destination URL to complete loading
-    await waitForTabComplete(tabId, 7500)
-    await new Promise(r => setTimeout(r, 650))
+    await waitForTabComplete(tabId, 8000)
+    await new Promise(r => setTimeout(r, delayMs))
 
-    // 4. Capture screenshot directly from Blink compositor
     const res = await chrome.debugger.sendCommand({ tabId }, 'Page.captureScreenshot', {
       format: 'jpeg',
       quality: 80
     })
 
-    if (res && res.data) {
-      const dataUrl = `data:image/jpeg;base64,${res.data}`
-      return await compressThumbnail(dataUrl, 480, 270)
+    if (res?.data) {
+      return await compressThumbnail(`data:image/jpeg;base64,${res.data}`, 480, 270)
     }
   } catch (err) {
-    console.warn('Background debugger capture:', err)
+    console.warn('Debugger tab capture error:', err)
   } finally {
-    if (attached && tabId !== null) {
-      try {
-        await chrome.debugger.detach({ tabId })
-      } catch {}
-    }
-    if (tabId !== null) {
-      try {
-        await chrome.tabs.remove(tabId)
-      } catch {}
-    }
-  }
-
-  return null
-}
-
-// Opens interactive tab for user to bypass age/cookie gates, then snapshots and auto-closes
-export async function captureInteractiveTab(url, delayMs = 2500) {
-  if (!chrome?.tabs?.create || !url || !url.startsWith('http')) return null
-  let newTabId = null
-  let originalTabId = null
-
-  try {
-    const activeTabs = await chrome.tabs.query({ active: true, currentWindow: true })
-    originalTabId = activeTabs[0]?.id || null
-
-    const newTab = await chrome.tabs.create({ url, active: true })
-    newTabId = newTab.id
-
-    await waitForTabComplete(newTabId, 8000)
-    // Interaction window for user to dismiss age/cookie verification
-    await new Promise(r => setTimeout(r, delayMs))
-
-    const snap = await chrome.tabs.captureVisibleTab(newTab.windowId, { format: 'jpeg', quality: 80 })
-    if (snap) return await compressThumbnail(snap, 480, 270)
-  } catch (err) {
-    console.warn('Interactive capture error:', err)
-  } finally {
-    if (newTabId) try { await chrome.tabs.remove(newTabId) } catch {}
+    if (attached && tabId) try { await chrome.debugger.detach({ tabId }) } catch {}
+    if (tabId) try { await chrome.tabs.remove(tabId) } catch {}
     if (originalTabId) try { await chrome.tabs.update(originalTabId, { active: true }) } catch {}
   }
   return null
+}
+
+// Opens secret background tab (active: false), snapshots via debugger, and auto-closes
+export async function captureViaBackgroundTab(url) {
+  if (!chrome?.tabs?.create || !url || !url.startsWith('http')) return null
+  try {
+    const activeTabs = await chrome.tabs.query({ active: true, currentWindow: true })
+    const norm = (u) => String(u || '').replace(/#.*$/, '').replace(/\/$/, '').toLowerCase()
+    const targetNorm = norm(url)
+    const existing = activeTabs.find(t => t.url && norm(t.url) === targetNorm)
+    if (existing?.windowId) {
+      const snap = await chrome.tabs.captureVisibleTab(existing.windowId, { format: 'jpeg', quality: 80 })
+      return await compressThumbnail(snap, 480, 270)
+    }
+  } catch {}
+  return snapshotTabWithDebugger({ url, active: false, delayMs: 650 })
+}
+
+// Opens interactive tab for user to bypass age/cookie gates, then snapshots via compositor and auto-closes
+export async function captureInteractiveTab(url, delayMs = 2500) {
+  if (!chrome?.tabs?.create || !url || !url.startsWith('http')) return null
+  return snapshotTabWithDebugger({ url, active: true, delayMs })
 }
 
 function waitForTabComplete(tabId, timeoutMs = 7500) {

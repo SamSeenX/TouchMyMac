@@ -28,6 +28,7 @@
 * Strict sub-200-line modular architecture across all JavaScript and CSS files
 
 ### Fixed
+* Fixed camera interactive snapshot by unifying capture engine on Chrome Debugger Page.captureScreenshot compositor to bypass cross-origin capture blocks
 * Removed all `chrome.windows.create` popups to eliminate window flashing
 * Removed inline `onerror` attribute in `card.js` to eliminate Manifest V3 CSP violation errors
 * Added `host_permissions` in `manifest.json` for origin web requests
