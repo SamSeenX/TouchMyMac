@@ -6,8 +6,17 @@ export class AudioManager {
   constructor(btnElement) {
     this.btn = btnElement;
     this.ctx = null;
+    this.processor = null;
     this.isPlaying = false;
-    this.nextTime = 0;
+
+    // 1-second circular buffer for stereo audio (48000 frames)
+    this.bufferSize = 48000;
+    this.ringL = new Float32Array(this.bufferSize);
+    this.ringR = new Float32Array(this.bufferSize);
+    this.writeIndex = 0;
+    this.readIndex = 0;
+    this.bufferedSamples = 0;
+    this.isPrebuffered = false;
 
     this.bindEvents();
   }
@@ -38,8 +47,16 @@ export class AudioManager {
     if (this.ctx.state === "suspended") {
       await this.ctx.resume();
     }
+
+    this.resetBuffer();
     this.isPlaying = true;
-    this.nextTime = this.ctx.currentTime + 0.05;
+
+    if (!this.processor) {
+      this.processor = this.ctx.createScriptProcessor(2048, 0, 2);
+      this.processor.onaudioprocess = (e) => this.processAudio(e);
+      this.processor.connect(this.ctx.destination);
+    }
+
     if (this.btn) {
       this.btn.classList.add("active");
       this.btn.title = "Audio Streaming (Mac Muted) - Click to Stop";
@@ -50,6 +67,11 @@ export class AudioManager {
 
   stopAudio() {
     this.isPlaying = false;
+    this.resetBuffer();
+    if (this.processor) {
+      this.processor.disconnect();
+      this.processor = null;
+    }
     if (this.btn) {
       this.btn.classList.remove("active");
       this.btn.title = "Listen to Mac Audio on Phone";
@@ -58,30 +80,47 @@ export class AudioManager {
     socket.send({ action: "audio_stop" });
   }
 
+  resetBuffer() {
+    this.writeIndex = 0;
+    this.readIndex = 0;
+    this.bufferedSamples = 0;
+    this.isPrebuffered = false;
+  }
+
   handleAudioChunk(arrayBuffer) {
-    if (!this.isPlaying || !this.ctx) return;
+    if (!this.isPlaying) return;
     const int16 = new Int16Array(arrayBuffer);
     const numFrames = Math.floor(int16.length / 2);
     if (numFrames === 0) return;
 
-    const audioBuf = this.ctx.createBuffer(2, numFrames, 48000);
-    const ch0 = audioBuf.getChannelData(0);
-    const ch1 = audioBuf.getChannelData(1);
-
     for (let i = 0; i < numFrames; i++) {
-      ch0[i] = int16[i * 2] / 32768.0;
-      ch1[i] = int16[i * 2 + 1] / 32768.0;
+      this.ringL[this.writeIndex] = int16[i * 2] / 32768.0;
+      this.ringR[this.writeIndex] = int16[i * 2 + 1] / 32768.0;
+      this.writeIndex = (this.writeIndex + 1) % this.bufferSize;
+    }
+    this.bufferedSamples += numFrames;
+
+    if (!this.isPrebuffered && this.bufferedSamples >= 2160) {
+      this.isPrebuffered = true;
+    }
+  }
+
+  processAudio(e) {
+    const outL = e.outputBuffer.getChannelData(0);
+    const outR = e.outputBuffer.getChannelData(1);
+    const len = outL.length;
+
+    if (!this.isPlaying || !this.isPrebuffered || this.bufferedSamples < len) {
+      outL.fill(0);
+      outR.fill(0);
+      return;
     }
 
-    const src = this.ctx.createBufferSource();
-    src.buffer = audioBuf;
-    src.connect(this.ctx.destination);
-
-    const now = this.ctx.currentTime;
-    if (this.nextTime < now) {
-      this.nextTime = now + 0.012;
+    for (let i = 0; i < len; i++) {
+      outL[i] = this.ringL[this.readIndex];
+      outR[i] = this.ringR[this.readIndex];
+      this.readIndex = (this.readIndex + 1) % this.bufferSize;
     }
-    src.start(this.nextTime);
-    this.nextTime += audioBuf.duration;
+    this.bufferedSamples -= len;
   }
 }

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.8.0] - 2026-11-24
+### Fixed
+- Fixed audio crackle and noise by rewriting `AudioStreamManager` to correctly query `AudioBufferList` channel pointers for non-interleaved CoreAudio planar streams.
+- Replaced multiple node instantiations in `web/js/audio.js` with a 48000Hz circular ring buffer and `ScriptProcessorNode` to provide gapless, smooth audio playback with zero node-recreation clicks.
+- Fixed macOS Finder bundle icon caching by forcing LaunchServices registration and embedding the custom icon resource.
+
 ## [2.7.0] - 2026-11-24
 ### Added
 - Created dedicated right-edge thumb scroll wheel (`ScrollWheel`) with mechanical haptic tick feedback for effortless single-handed scrolling.

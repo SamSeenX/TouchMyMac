@@ -3,6 +3,7 @@
 import Foundation
 import ScreenCaptureKit
 import CoreMedia
+import AudioToolbox
 
 @available(macOS 13.0, *)
 public final class AudioStreamManager: NSObject, SCStreamOutput, SCStreamDelegate {
@@ -53,29 +54,69 @@ public final class AudioStreamManager: NSObject, SCStreamOutput, SCStreamDelegat
         guard let formatDesc = CMSampleBufferGetFormatDescription(sampleBuffer),
               let asbd = CMAudioFormatDescriptionGetStreamBasicDescription(formatDesc)?.pointee else { return }
         let numSamples = CMSampleBufferGetNumSamples(sampleBuffer)
-        guard numSamples > 0, let blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer) else { return }
+        guard numSamples > 0 else { return }
 
-        var length = 0
-        var dataPointer: UnsafeMutablePointer<Int8>?
-        guard CMBlockBufferGetDataPointer(blockBuffer, atOffset: 0, lengthAtOffsetOut: nil, totalLengthOut: &length, dataPointerOut: &dataPointer) == noErr,
-              let ptr = dataPointer, length >= numSamples * 4 else { return }
+        var blockBuffer: CMBlockBuffer?
+        var bufferListSizeNeeded = 0
+        CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
+            sampleBuffer,
+            bufferListSizeNeededOut: &bufferListSizeNeeded,
+            bufferListOut: nil,
+            bufferListSize: 0,
+            blockBufferAllocator: nil,
+            blockBufferMemoryAllocator: nil,
+            flags: 0,
+            blockBufferOut: nil
+        )
 
-        let isNonInterleaved = (asbd.mFormatFlags & kAudioFormatFlagIsNonInterleaved) != 0
+        guard bufferListSizeNeeded > 0 else { return }
+        let rawMemory = UnsafeMutableRawPointer.allocate(byteCount: bufferListSizeNeeded, alignment: MemoryLayout<AudioBufferList>.alignment)
+        defer { rawMemory.deallocate() }
+        let bufferListPtr = rawMemory.bindMemory(to: AudioBufferList.self, capacity: 1)
+
+        let status = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
+            sampleBuffer,
+            bufferListSizeNeededOut: nil,
+            bufferListOut: bufferListPtr,
+            bufferListSize: bufferListSizeNeeded,
+            blockBufferAllocator: nil,
+            blockBufferMemoryAllocator: nil,
+            flags: 0,
+            blockBufferOut: &blockBuffer
+        )
+        guard status == noErr else { return }
+
+        let numBuffers = Int(bufferListPtr.pointee.mNumberBuffers)
         var pcmData = Data(count: numSamples * 2 * 2)
 
         pcmData.withUnsafeMutableBytes { outBuf in
             let out = outBuf.bindMemory(to: Int16.self).baseAddress!
-            let inFloats = ptr.withMemoryRebound(to: Float32.self, capacity: length / 4) { $0 }
-            if isNonInterleaved && length >= numSamples * 8 {
-                let left = inFloats
-                let right = inFloats + numSamples
-                for i in 0..<numSamples {
-                    out[i * 2] = Int16(max(-1.0, min(1.0, left[i])) * 32767.0)
-                    out[i * 2 + 1] = Int16(max(-1.0, min(1.0, right[i])) * 32767.0)
+            if numBuffers >= 2 {
+                withUnsafePointer(to: &bufferListPtr.pointee.mBuffers) { bufPtr in
+                    let bufs = UnsafeBufferPointer<AudioBuffer>(start: bufPtr, count: numBuffers)
+                    if let leftPtr = bufs[0].mData?.bindMemory(to: Float32.self, capacity: numSamples),
+                       let rightPtr = bufs[1].mData?.bindMemory(to: Float32.self, capacity: numSamples) {
+                        for i in 0..<numSamples {
+                            out[i * 2] = Int16(max(-1.0, min(1.0, leftPtr[i])) * 32767.0)
+                            out[i * 2 + 1] = Int16(max(-1.0, min(1.0, rightPtr[i])) * 32767.0)
+                        }
+                    }
                 }
-            } else {
-                for i in 0..<(numSamples * 2) {
-                    out[i] = Int16(max(-1.0, min(1.0, inFloats[i])) * 32767.0)
+            } else if numBuffers == 1 {
+                let buf = bufferListPtr.pointee.mBuffers
+                let channels = Int(asbd.mChannelsPerFrame)
+                if let inPtr = buf.mData?.bindMemory(to: Float32.self, capacity: numSamples * channels) {
+                    if channels >= 2 {
+                        for i in 0..<(numSamples * 2) {
+                            out[i] = Int16(max(-1.0, min(1.0, inPtr[i])) * 32767.0)
+                        }
+                    } else {
+                        for i in 0..<numSamples {
+                            let s = Int16(max(-1.0, min(1.0, inPtr[i])) * 32767.0)
+                            out[i * 2] = s
+                            out[i * 2 + 1] = s
+                        }
+                    }
                 }
             }
         }
