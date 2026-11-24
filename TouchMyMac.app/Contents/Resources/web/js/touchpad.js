@@ -149,7 +149,12 @@ export class Touchpad {
           const start = this.touches.get(t.identifier);
           if (start) {
             const dx = t.clientX - start.startX;
-            if (Math.abs(dx) > 40) {
+            const dy = t.clientY - start.startY;
+            if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 35) {
+              socket.send({ action: "desktop", dir: dy < 0 ? "up" : "down" });
+              this.haptic(45);
+              break;
+            } else if (Math.abs(dx) > 35) {
               socket.send({ action: "desktop", dir: dx > 0 ? "left" : "right" });
               this.haptic(40);
               break;

@@ -7,60 +7,55 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="theme-color" content="#fff8fa">
   <title>TouchMyMac Controller</title>
-  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="icon" type="image/svg+xml" href="icon.svg?v=3.1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/tokens.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/decks.css">
-  <link rel="stylesheet" href="css/keyboard.css">
-  <link rel="stylesheet" href="css/settings.css">
-  <link rel="stylesheet" href="css/wheel.css">
+  <link rel="stylesheet" href="css/tokens.css?v=3.1">
+  <link rel="stylesheet" href="css/layout.css?v=3.1">
+  <link rel="stylesheet" href="css/decks.css?v=3.1">
+  <link rel="stylesheet" href="css/keyboard.css?v=3.1">
+  <link rel="stylesheet" href="css/settings.css?v=3.1">
+  <link rel="stylesheet" href="css/wheel.css?v=3.1">
 </head>
 <body>
   <div class="app-container">
     <header class="top-bar">
       <div class="status-badge">
-        <img src="icon.svg" class="app-brand-icon" alt="TouchMyMac">
+        <img src="icon.svg?v=3.1" class="app-brand-icon" alt="TouchMyMac">
         <span class="status-dot" id="statusDot"></span>
         <span id="statusText">Connecting...</span>
       </div>
       <div class="top-actions">
-        <button class="icon-btn" id="sensBtn" title="Sensitivity">⚡<span id="sensLabel" style="font-size: 10px; margin-left: 1px;">2.0x</span></button>
-        <button class="icon-btn" id="audioBtn" title="Listen on Phone (Mac Muted)">🎧</button>
-        <button class="icon-btn" id="wakeLockBtn" title="Keep Screen Awake">☕</button>
-        <button class="icon-btn" id="keyboardBtn" title="Toggle Virtual Keyboard">⌨️</button>
+        <button class="icon-btn" id="sensBtn" title="Speed"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span id="sensLabel" style="font-size: 10px; margin-left: 2px;">2.0x</span></button>
+        <button class="icon-btn" id="audioBtn" title="Phone Audio"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></button>
+        <button class="icon-btn" id="wakeLockBtn" title="Keep Awake"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg></button>
+        <button class="icon-btn" id="keyboardBtn" title="Keyboard"><svg class="icon-svg" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M8 16h8"/></svg></button>
       </div>
     </header>
 
     <!-- Sensitivity Overlay -->
     <div class="sens-overlay" id="sensOverlay" hidden>
-      <div class="sens-header">
-        <span>Mouse Speed</span>
-        <span class="sens-val" id="sensVal">2.0x</span>
-      </div>
+      <div class="sens-header"><span>Mouse Speed</span><span class="sens-val" id="sensVal">2.0x</span></div>
       <input type="range" class="sens-slider" id="sensSlider" min="0.8" max="4.0" step="0.2" value="2.0">
       <div class="sens-presets">
         <button class="sens-chip" data-val="1.4">Normal</button>
         <button class="sens-chip" data-val="2.0">Fast</button>
         <button class="sens-chip" data-val="2.8">Turbo</button>
       </div>
+      <a href="https://buymeacoffee.com/samseen" target="_blank" rel="noopener noreferrer" class="coffee-chip">☕ Buy me a coffee</a>
     </div>
 
     <main class="trackpad-surface" id="trackpad">
       <div class="trackpad-hint" id="trackpadHint">
         1-Finger: Move / Tap<br>
         2-Finger: Scroll / Right Click<br>
-        3-Finger: Switch Spaces
+        3-Finger: ⇡ Open Apps / ⇣ Windows / ⇠⇢ Spaces
       </div>
       <div class="scroll-wheel-strip" id="scrollWheel">
         <div class="wheel-indicator">
-          <span class="wheel-notch"></span>
-          <span class="wheel-notch"></span>
-          <span class="wheel-notch"></span>
-          <span class="wheel-notch"></span>
-          <span class="wheel-notch"></span>
+          <span class="wheel-notch"></span><span class="wheel-notch"></span>
+          <span class="wheel-notch"></span><span class="wheel-notch"></span><span class="wheel-notch"></span>
         </div>
         <div class="scroll-wheel-label">SCROLL</div>
       </div>
@@ -72,91 +67,91 @@
 
     <footer class="bottom-deck-container">
       <nav class="deck-tabs">
-        <button class="deck-tab active" data-tab="media">Media</button>
-        <button class="deck-tab" data-tab="youtube">YouTube</button>
+        <button class="deck-tab active" data-tab="youtube">YouTube</button>
+        <button class="deck-tab" data-tab="media">Media</button>
         <button class="deck-tab" data-tab="shortcuts">Mac Nav</button>
       </nav>
 
       <section class="deck-content">
-        <!-- Media Panel -->
-        <div class="panel active" id="panel-media">
-          <div class="panel-row">
-            <button class="deck-btn" data-action="media" data-cmd="mute">
-              <span class="btn-icon">🔇</span>
-              <span class="btn-label">Mute</span>
-            </button>
-            <button class="deck-btn" data-action="media" data-cmd="vol_down">
-              <span class="btn-icon">🔉</span>
-              <span class="btn-label">Vol -</span>
-            </button>
-            <button class="deck-btn primary" data-action="media" data-cmd="play_pause">
-              <span class="btn-icon">⏯️</span>
-              <span class="btn-label">Play/Pause</span>
-            </button>
-            <button class="deck-btn" data-action="media" data-cmd="vol_up">
-              <span class="btn-icon">🔊</span>
-              <span class="btn-label">Vol +</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- YouTube Panel -->
-        <div class="panel" id="panel-youtube">
+        <!-- YouTube Panel (Tab 1 Default) -->
+        <div class="panel active" id="panel-youtube">
           <div class="panel-row">
             <button class="deck-btn" data-action="yt" data-cmd="seek_back">
-              <span class="btn-icon">⏪</span>
+              <svg class="icon-svg" viewBox="0 0 24 24"><path d="M11 19l-9-7 9-7v14zM22 19l-9-7 9-7v14z"/></svg>
               <span class="btn-label">-10s (J)</span>
             </button>
             <button class="deck-btn primary" data-action="yt" data-cmd="play_pause">
-              <span class="btn-icon">⏯️</span>
+              <svg class="icon-svg" viewBox="0 0 24 24" style="fill: currentColor;"><path d="M5 3l14 9-14 9V3z"/></svg>
               <span class="btn-label">Play (K)</span>
             </button>
             <button class="deck-btn" data-action="yt" data-cmd="seek_fwd">
-              <span class="btn-icon">⏩</span>
+              <svg class="icon-svg" viewBox="0 0 24 24"><path d="M13 19l9-7-9-7v14zM2 19l9-7-9-7v14z"/></svg>
               <span class="btn-label">+10s (L)</span>
             </button>
             <button class="deck-btn" data-action="yt" data-cmd="fullscreen">
-              <span class="btn-icon">⛶</span>
+              <svg class="icon-svg" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
               <span class="btn-label">Full (F)</span>
             </button>
           </div>
           <div class="panel-row">
             <button class="deck-btn" data-action="yt" data-cmd="speed_down">
-              <span class="btn-icon">🐢</span>
+              <svg class="icon-svg" viewBox="0 0 24 24"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg>
               <span class="btn-label">Speed - (&lt;)</span>
             </button>
             <button class="deck-btn" data-action="yt" data-cmd="speed_up">
-              <span class="btn-icon">🐇</span>
+              <svg class="icon-svg" viewBox="0 0 24 24"><path d="M6 17l5-5-5-5M13 17l5-5-5-5"/></svg>
               <span class="btn-label">Speed + (&gt;)</span>
             </button>
             <button class="deck-btn" data-action="yt" data-cmd="pip">
-              <span class="btn-icon">📺</span>
+              <svg class="icon-svg" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><rect x="12" y="11" width="8" height="7" rx="1.5"/></svg>
               <span class="btn-label">PiP (I)</span>
             </button>
             <button class="deck-btn" data-action="yt" data-cmd="captions">
-              <span class="btn-icon">💬</span>
+              <svg class="icon-svg" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 10a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2M16 10a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2"/></svg>
               <span class="btn-label">CC (C)</span>
             </button>
           </div>
         </div>
 
-        <!-- Shortcuts Panel -->
+        <!-- Media Panel (Tab 2) -->
+        <div class="panel" id="panel-media">
+          <div class="panel-row">
+            <button class="deck-btn" data-action="media" data-cmd="mute">
+              <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+              <span class="btn-label">Mute</span>
+            </button>
+            <button class="deck-btn" data-action="media" data-cmd="vol_down">
+              <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              <span class="btn-label">Vol -</span>
+            </button>
+            <button class="deck-btn primary" data-action="media" data-cmd="play_pause">
+              <svg class="icon-svg" viewBox="0 0 24 24" style="fill: currentColor;"><path d="M5 3l14 9-14 9V3z"/></svg>
+              <span class="btn-label">Play/Pause</span>
+            </button>
+            <button class="deck-btn" data-action="media" data-cmd="vol_up">
+              <svg class="icon-svg" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              <span class="btn-label">Vol +</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Shortcuts Panel (Tab 3) -->
         <div class="panel" id="panel-shortcuts">
           <div class="panel-row">
+            <button class="deck-btn" data-action="desktop" data-dir="up">
+              <svg class="icon-svg" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+              <span class="btn-label">All Apps</span>
+            </button>
+            <button class="deck-btn" data-action="desktop" data-dir="down">
+              <svg class="icon-svg" viewBox="0 0 24 24"><rect x="2" y="4" width="16" height="12" rx="2"/><path d="M6 20h14a2 2 0 0 0 2-2V8"/></svg>
+              <span class="btn-label">App Windows</span>
+            </button>
             <button class="deck-btn" data-action="desktop" data-dir="left">
-              <span class="btn-icon">◀️</span>
+              <svg class="icon-svg" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
               <span class="btn-label">Space Left</span>
             </button>
-            <button class="deck-btn" data-action="key" data-key="escape">
-              <span class="btn-icon">⎋</span>
-              <span class="btn-label">Esc</span>
-            </button>
-            <button class="deck-btn" data-action="key" data-key="enter">
-              <span class="btn-icon">⏎</span>
-              <span class="btn-label">Return</span>
-            </button>
             <button class="deck-btn" data-action="desktop" data-dir="right">
-              <span class="btn-icon">▶️</span>
+              <svg class="icon-svg" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
               <span class="btn-label">Space Right</span>
             </button>
           </div>
@@ -184,6 +179,6 @@
     <input type="text" id="hiddenInput" class="hidden-key-sink" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
   </div>
 
-  <script type="module" src="js/app.js"></script>
+  <script type="module" src="js/app.js?v=3.1"></script>
 </body>
 </html>

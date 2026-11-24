@@ -27,7 +27,7 @@ public final class HTTPServer {
         let mime = mimeType(for: path)
 
         if let fileData = try? Data(contentsOf: fileURL) {
-            let header = "HTTP/1.1 200 OK\r\nContent-Type: \(mime)\r\nContent-Length: \(fileData.count)\r\n\(pna)Connection: close\r\n\r\n"
+            let header = "HTTP/1.1 200 OK\r\nContent-Type: \(mime)\r\nContent-Length: \(fileData.count)\r\nCache-Control: no-cache, no-store, must-revalidate\r\nPragma: no-cache\r\nExpires: 0\r\n\(pna)Connection: close\r\n\r\n"
             var response = header.data(using: .utf8)!
             response.append(fileData)
             conn.send(content: response, completion: .contentProcessed({ _ in conn.cancel() }))

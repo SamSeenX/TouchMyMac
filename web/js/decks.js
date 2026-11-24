@@ -10,6 +10,8 @@ export class DeckManager {
     this.wakeLock = null;
 
     this.bindEvents();
+    const savedTab = localStorage.getItem("tmm_active_tab") || "youtube";
+    this.switchTab(savedTab);
   }
 
   bindEvents() {
@@ -47,6 +49,7 @@ export class DeckManager {
   }
 
   switchTab(tabName) {
+    localStorage.setItem("tmm_active_tab", tabName);
     this.tabs.forEach((t) => t.classList.toggle("active", t.dataset.tab === tabName));
     this.panels.forEach((p) => p.classList.toggle("active", p.id === `panel-${tabName}`));
   }
