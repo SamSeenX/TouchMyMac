@@ -10,6 +10,7 @@ import { setupModals } from './components/modal.js'
 import { setupIoModal } from './components/io-modal.js'
 import { setupBatchController } from './components/batch-controller.js'
 import { fetchExternalThumbnail } from './utils/thumbnail-generator.js'
+import { captureViaQuickTab } from './utils/capture.js'
 
 let allBookmarks = []
 let allFolders = []
@@ -141,7 +142,10 @@ function setupGridActions() {
       refreshBtn.disabled = true
       refreshBtn.innerHTML = '&#9203;'
       try {
-        const thumb = await fetchExternalThumbnail(bm.url, bm)
+        let thumb = await captureViaQuickTab(bm.url)
+        if (!thumb) {
+          thumb = await fetchExternalThumbnail(bm.url, bm)
+        }
         if (thumb) await updateBookmark(id, { thumbnail: thumb })
       } finally {
         refreshBtn.disabled = false
