@@ -3,9 +3,8 @@
 ## [Unreleased] - 2026-11-24
 
 ### Added
-* 100% Local direct OpenGraph preview banner extractor: zero 3rd party screenshot proxy reliance
-* Active tab snapshot detector: captures tab viewports locally if matching URLs are open in Chrome
-* Host permissions for `http://*/*` and `https://*/*` allowing direct origin metadata requests
+* 100% Local secret background window capture: launches an unfocused window, captures real rendered screen, and closes instantly
+* Fallback to direct OpenGraph header extraction when window capture is restricted
 * Batch thumbnail generator queue with live progress bar and stop control
 * Force regenerate option to re-fetch all thumbnails across imported bookmarks
 * Single-item thumbnail refresh button on every bookmark card
@@ -21,5 +20,6 @@
 
 ### Fixed
 * Removed inline `onerror` attribute in `card.js` to eliminate Manifest V3 CSP violation errors
+* Added `host_permissions` in `manifest.json` for origin web requests
 * Added missing `contextMenus` permission to `manifest.json` for right-click saving
 * Fixed inner anchor and image drag collision in `card.js` using `draggable="false"`
