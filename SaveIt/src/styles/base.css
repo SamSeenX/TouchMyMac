@@ -1,0 +1,72 @@
+/* Base app layout and reset */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.app-container {
+  display: flex;
+  flex: 1;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.top-navbar {
+  height: 60px;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.content-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.content-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.view-title-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.view-title {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.view-count {
+  font-size: 13px;
+  color: var(--text-dim);
+}
