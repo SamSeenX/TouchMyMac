@@ -18,6 +18,8 @@
 * Strict sub-200-line modular architecture across all JavaScript and CSS files
 
 ### Fixed
+* Removed inline `onerror` attribute in `card.js` to eliminate Manifest V3 CSP violation errors
+* Added `host_permissions` for `https://s0.wp.com/*` in `manifest.json` to allow clean screenshot fetching
 * Added missing `contextMenus` permission to `manifest.json` for right-click saving
 * Fixed inner anchor and image drag collision in `card.js` using `draggable="false"`
 * Fixed mshots URL formatting by ensuring trailing slash and raw URL format to avoid 403 errors
