@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] - 2026-11-24
+### Added
+- Re-architected into a 100% native Swift menu bar application with zero third-party dependencies.
+- Menu bar widget (`NSStatusItem`) resident with an interactive dropdown `NSPopover`.
+- Single-port HTTP and WebSocket engine on standard port 8080 using Apple Network framework.
+- Built-in CoreImage `CIQRCodeGenerator` with certified mobile camera scanning.
+- Direct CoreGraphics `CGEvent` mouse, scroll, keyboard, and space switching dispatch.
+
 ## [1.0.4] - 2026-11-24
 ### Fixed
 - Upgraded HTTP server to multi-threaded `ThreadingHTTPServer` to eliminate single-threaded socket blocking on concurrent mobile assets.
