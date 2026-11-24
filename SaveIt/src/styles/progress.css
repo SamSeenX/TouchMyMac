@@ -1,0 +1,46 @@
+/* Batch Thumbnail Generator Progress Banner Styles */
+
+.batch-progress-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 16px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  margin-bottom: 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+.progress-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.progress-icon {
+  color: var(--warning);
+}
+
+.progress-bar-wrap {
+  flex: 1;
+  height: 6px;
+  background-color: var(--bg-primary);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background-color: var(--primary);
+  transition: width 0.2s ease;
+}
+
+.card-title-link {
+  text-decoration: none;
+  color: inherit;
+}

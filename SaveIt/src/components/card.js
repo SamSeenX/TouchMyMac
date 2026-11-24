@@ -1,4 +1,4 @@
-// Card component rendering visual bookmark cards with drag-to-organize support
+// Card component rendering visual bookmark cards with drag-to-organize and thumbnail refresh
 
 import { escapeHtml, sanitizeUrl } from '../utils/sanitize.js'
 
@@ -22,20 +22,23 @@ export function renderCard(bookmark) {
     : ''
 
   card.innerHTML = `
-    <div class="card-thumbnail-wrap" data-action="open" title="Open: ${safeTitle}">
+    <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="card-thumbnail-wrap" title="Open: ${safeTitle}">
       ${thumbnailHtml}
       ${pinBadge}
-    </div>
+    </a>
     <div class="card-body">
       <div class="card-header-row">
         ${faviconHtml}
         <span class="card-domain">${escapeHtml(domain)}</span>
       </div>
-      <h3 class="card-title" data-action="open" title="${safeTitle}">${safeTitle}</h3>
+      <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="card-title-link">
+        <h3 class="card-title" title="${safeTitle}">${safeTitle}</h3>
+      </a>
     </div>
     <div class="card-footer">
       <span class="card-date">${formatDate(bookmark.createdAt)}</span>
       <div class="card-actions">
+        <button class="card-action-btn" data-action="refresh" title="Refresh Thumbnail">&#128260;</button>
         <button class="card-action-btn" data-action="copy" title="Copy Link">&#128203;</button>
         <button class="card-action-btn" data-action="edit" title="Edit">&#9998;</button>
         <button class="card-action-btn" data-action="delete" title="Delete">&#128465;</button>
@@ -44,7 +47,12 @@ export function renderCard(bookmark) {
   `
 
   card.addEventListener('dragstart', (e) => {
+    if (e.target.closest('.card-actions')) {
+      e.preventDefault()
+      return
+    }
     e.dataTransfer.setData('text/plain', bookmark.id)
+    e.dataTransfer.setData('text/uri-list', bookmark.url)
     e.dataTransfer.effectAllowed = 'move'
     card.classList.add('dragging')
   })
