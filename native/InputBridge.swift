@@ -2,6 +2,7 @@
 
 import Foundation
 import CoreGraphics
+import AppKit
 
 public final class InputBridge {
     private static let source = CGEventSource(stateID: .hidSystemState)
@@ -93,15 +94,21 @@ public final class InputBridge {
     }
 
     public static func switchDesktop(direction: String) {
-        let code: CGKeyCode
-        switch direction {
-        case "left": code = 123
-        case "right": code = 124
-        case "up": code = 126
-        case "down": code = 125
-        default: code = 123
+        if direction == "up" {
+            let appURL = URL(fileURLWithPath: "/System/Applications/Mission Control.app")
+            NSWorkspace.shared.openApplication(at: appURL, configuration: NSWorkspace.OpenConfiguration(), completionHandler: nil)
+            return
         }
+        let code: CGKeyCode = (direction == "down") ? 125 : (direction == "right" ? 124 : 123)
+        let ctrlDown = CGEvent(keyboardEventSource: source, virtualKey: 59, keyDown: true)
+        ctrlDown?.flags = .maskControl
+        ctrlDown?.post(tap: .cghidEventTap)
+        usleep(5_000)
         postKey(code: code, flags: [.maskControl])
+        usleep(5_000)
+        let ctrlUp = CGEvent(keyboardEventSource: source, virtualKey: 59, keyDown: false)
+        ctrlUp?.flags = []
+        ctrlUp?.post(tap: .cghidEventTap)
     }
 
     public static func typeText(_ text: String, modifiers: [String] = []) {
