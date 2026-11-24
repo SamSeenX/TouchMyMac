@@ -10,12 +10,8 @@ class SocketClient {
   }
 
   init() {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token") || "";
-    const wsPort = params.get("ws") || "8766";
-    const host = window.location.hostname || "localhost";
-    const wsUrl = `ws://${host}:${wsPort}/?token=${token}`;
-
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
     this.connect(wsUrl);
   }
 
