@@ -166,23 +166,3 @@
   resize: vertical;
   min-height: 70px;
 }
-
-/* Empty state styling */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-muted);
-}
-
-.empty-state-icon {
-  font-size: 48px;
-  margin-bottom: 12px;
-  opacity: 0.5;
-}
-
-.empty-state-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: var(--text-main);
-}

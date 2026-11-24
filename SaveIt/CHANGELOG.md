@@ -3,6 +3,10 @@
 ## [Unreleased] - 2026-11-24
 
 ### Added
+* Interactive live snapshot mode with 2.5s user interaction window to bypass age verification gates, cookie prompts, and overlays
+* Folder deletion action with safe automatic reassignment of child bookmarks to General
+* Subfolder creation with parent selection modal and inline subfolder buttons in sidebar
+* Clickable folder badge pills on cards in All Bookmarks and Recently Added views with quick-filter navigation
 * True background tab capture via Chrome debugger API: snapshots background tabs with user session without switching focus away from dashboard
 * Strict OpenGraph banner filter: rejects icons, favicons, and apple-touch-icon assets so only genuine preview images are accepted
 * Real visual webpage screenshot capture engine via headless rendering with automatic pre-warm retry

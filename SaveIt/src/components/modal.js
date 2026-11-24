@@ -11,6 +11,7 @@ export function setupModals({ editModal, folderModal, foldersProvider }) {
   const editBookmarkId = document.getElementById('editBookmarkId')
   const saveEditBtn = document.getElementById('saveEditBtn')
   const newFolderName = document.getElementById('newFolderName')
+  const newFolderParent = document.getElementById('newFolderParent')
   const createFolderSubmit = document.getElementById('createFolderSubmit')
 
   let folderDropdown = null
@@ -34,8 +35,21 @@ export function setupModals({ editModal, folderModal, foldersProvider }) {
     editModal.classList.remove('open')
   }
 
-  function openFolder() {
+  function openFolder(presetParentId = null) {
     newFolderName.value = ''
+    if (newFolderParent) {
+      newFolderParent.innerHTML = '<option value="">(None - Top Level)</option>'
+      const folders = foldersProvider()
+      folders.forEach(f => {
+        if (!f.system || f.id === 'folder_general') {
+          const opt = document.createElement('option')
+          opt.value = f.id
+          opt.textContent = f.name
+          if (f.id === presetParentId) opt.selected = true
+          newFolderParent.appendChild(opt)
+        }
+      })
+    }
     folderModal.classList.add('open')
     setTimeout(() => newFolderName.focus(), 50)
   }
@@ -64,7 +78,8 @@ export function setupModals({ editModal, folderModal, foldersProvider }) {
   createFolderSubmit.addEventListener('click', async () => {
     const name = newFolderName.value.trim()
     if (!name) return
-    await createFolder(name)
+    const parentId = newFolderParent ? (newFolderParent.value || null) : null
+    await createFolder(name, parentId)
     closeFolder()
   })
 

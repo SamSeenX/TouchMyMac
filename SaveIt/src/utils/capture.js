@@ -16,36 +16,24 @@ export async function compressThumbnail(dataUrl, targetWidth = 480, targetHeight
 
         ctx.imageSmoothingEnabled = true
         ctx.imageSmoothingQuality = 'high'
-
-        // Crop to center 16:9 aspect ratio
         const srcAspect = img.width / img.height
         const targetAspect = targetWidth / targetHeight
-        let sx = 0
-        let sy = 0
-        let sWidth = img.width
-        let sHeight = img.height
+        let sx = 0, sy = 0, sWidth = img.width, sHeight = img.height
 
         if (srcAspect > targetAspect) {
           sWidth = img.height * targetAspect
           sx = (img.width - sWidth) / 2
         } else {
           sHeight = img.width / targetAspect
-          sy = 0
         }
 
         ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, targetWidth, targetHeight)
-        const webpDataUrl = canvas.toDataURL('image/webp', 0.8)
-        resolve(webpDataUrl)
+        resolve(canvas.toDataURL('image/webp', 0.8))
       } catch (err) {
-        console.warn('Canvas WebP compression fallback:', err)
         resolve(dataUrl)
       }
     }
-
-    img.onerror = () => {
-      resolve(null)
-    }
-
+    img.onerror = () => resolve(null)
     img.src = dataUrl
   })
 }
@@ -121,6 +109,34 @@ export async function captureViaBackgroundTab(url) {
     }
   }
 
+  return null
+}
+
+// Opens interactive tab for user to bypass age/cookie gates, then snapshots and auto-closes
+export async function captureInteractiveTab(url, delayMs = 2500) {
+  if (!chrome?.tabs?.create || !url || !url.startsWith('http')) return null
+  let newTabId = null
+  let originalTabId = null
+
+  try {
+    const activeTabs = await chrome.tabs.query({ active: true, currentWindow: true })
+    originalTabId = activeTabs[0]?.id || null
+
+    const newTab = await chrome.tabs.create({ url, active: true })
+    newTabId = newTab.id
+
+    await waitForTabComplete(newTabId, 8000)
+    // Interaction window for user to dismiss age/cookie verification
+    await new Promise(r => setTimeout(r, delayMs))
+
+    const snap = await chrome.tabs.captureVisibleTab(newTab.windowId, { format: 'jpeg', quality: 80 })
+    if (snap) return await compressThumbnail(snap, 480, 270)
+  } catch (err) {
+    console.warn('Interactive capture error:', err)
+  } finally {
+    if (newTabId) try { await chrome.tabs.remove(newTabId) } catch {}
+    if (originalTabId) try { await chrome.tabs.update(originalTabId, { active: true }) } catch {}
+  }
   return null
 }
 

@@ -2,7 +2,7 @@
 
 import { escapeHtml, sanitizeUrl } from '../utils/sanitize.js'
 
-export function renderCard(bookmark) {
+export function renderCard(bookmark, folderName = '', showFolder = false) {
   const card = document.createElement('article')
   card.className = 'bookmark-card'
   card.setAttribute('data-id', bookmark.id)
@@ -21,6 +21,10 @@ export function renderCard(bookmark) {
     ? `<img src="${bookmark.favicon}" alt="" class="card-favicon" draggable="false">`
     : ''
 
+  const folderBadgeHtml = (showFolder && folderName)
+    ? `<button type="button" class="card-folder-badge" data-action="filter-folder" data-folder-id="${bookmark.folderId}" title="Folder: ${escapeHtml(folderName)}">&#128193; ${escapeHtml(folderName)}</button>`
+    : ''
+
   card.innerHTML = `
     <div class="card-thumbnail-wrap" data-action="open" title="Open: ${safeTitle}" draggable="false">
       ${thumbnailHtml}
@@ -30,6 +34,7 @@ export function renderCard(bookmark) {
       <div class="card-header-row">
         ${faviconHtml}
         <span class="card-domain">${escapeHtml(domain)}</span>
+        ${folderBadgeHtml}
       </div>
       <div class="card-title-link" data-action="open" title="Open: ${safeTitle}">
         <h3 class="card-title" title="${safeTitle}">${safeTitle}</h3>
@@ -38,7 +43,8 @@ export function renderCard(bookmark) {
     <div class="card-footer">
       <span class="card-date">${formatDate(bookmark.createdAt)}</span>
       <div class="card-actions">
-        <button type="button" class="card-action-btn" data-action="refresh" title="Refresh Thumbnail">&#128260;</button>
+        <button type="button" class="card-action-btn" data-action="refresh" title="Silent Refresh (Banner)">&#128260;</button>
+        <button type="button" class="card-action-btn" data-action="snap" title="Interactive Snapshot (Opens tab for 2.5s to bypass age gates)">&#128247;</button>
         <button type="button" class="card-action-btn" data-action="copy" title="Copy Link">&#128203;</button>
         <button type="button" class="card-action-btn" data-action="edit" title="Edit">&#9998;</button>
         <button type="button" class="card-action-btn" data-action="delete" title="Delete">&#128465;</button>
