@@ -1,6 +1,6 @@
-// Headless thumbnail generator with local tab capture, screenshot engine, and fallbacks
+// Headless thumbnail generator with local tab capture, OpenGraph extractor, and fallbacks
 
-import { compressThumbnail } from './capture.js'
+import { compressThumbnail, captureViaBackgroundTab } from './capture.js'
 import { generateBrandedCard } from './branded-card.js'
 import { updateBookmark } from '../core/bookmarks.js'
 
@@ -15,14 +15,7 @@ export async function generateSilentThumbnail(bookmark) {
     if (compressed) return compressed
   }
 
-  // 2. Fetch actual rendered webpage screenshot via headless renderer
-  const mshotSnap = await fetchMshotsScreenshot(url)
-  if (mshotSnap) {
-    const compressed = await compressThumbnail(mshotSnap, 480, 270)
-    if (compressed) return compressed
-  }
-
-  // 3. Fallback to OpenGraph preview banner if site published one
+  // 2. Extract genuine OpenGraph or Twitter preview banner (strictly rejecting icons)
   try {
     const swResult = await new Promise((resolve) => {
       chrome.runtime.sendMessage({ action: 'extract_preview', url }, (res) => {
@@ -40,7 +33,20 @@ export async function generateSilentThumbnail(bookmark) {
     }
   } catch {}
 
-  // 4. Final fallback: local branded canvas card (zero network errors)
+  // 3. Secret background tab capture via debugger API (active: false, user stays on dashboard)
+  try {
+    const bgSnap = await captureViaBackgroundTab(url)
+    if (bgSnap) return bgSnap
+  } catch {}
+
+  // 4. Headless cloud screenshot fallback for public pages
+  const mshotSnap = await fetchMshotsScreenshot(url)
+  if (mshotSnap) {
+    const compressed = await compressThumbnail(mshotSnap, 480, 270)
+    if (compressed) return compressed
+  }
+
+  // 5. Final fallback: local branded canvas card (zero network errors)
   return await generateBrandedCard(bookmark)
 }
 
