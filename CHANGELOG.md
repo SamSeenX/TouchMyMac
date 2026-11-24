@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2026-11-24
+### Fixed
+- Self-contained app bundle resources inside `TouchMyMac.app/Contents/Resources/`.
+- Fixed launcher script path resolution so double clicking in Finder reliably launches the app.
+- Added frontmost window focus and lift hooks for macOS.
+
 ## [1.0.0] - 2026-11-24
 ### Added
 - Initial project scaffolding and modular architecture.
