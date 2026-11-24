@@ -10,9 +10,10 @@ SaveIt is a clean, visual bookmark manager for your browser. Instead of boring t
 
 ### Features
 * Visual preview thumbnails captured automatically when saving
-* Quick-save popup to edit titles, select folders, and tag bookmarks
+* Quick-save popup to edit titles and select folders
 * Fullscreen dashboard with clean grid view and dark mode
-* Folder organization and multi-label tagging
+* Multi-density layout support including compact list view
+* Folder organization and drag-and-drop re-filing
 * Universal import and export supporting all major browsers
 * 100% private and offline-first with zero tracking
 
@@ -22,3 +23,4 @@ SaveIt is a clean, visual bookmark manager for your browser. Instead of boring t
 * `storage`: Required to save user preferences such as theme and sort order.
 * `unlimitedStorage`: Required to persist thumbnail images locally in IndexedDB without quota rejection.
 * `contextMenus`: Required to provide right-click options for saving any page or link directly.
+* `host_permissions` (`https://s0.wp.com/*`): Required to fetch automated preview screenshots for imported browser bookmarks that lack local thumbnails.

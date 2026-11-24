@@ -18,7 +18,7 @@ export function renderCard(bookmark) {
     : `<div class="card-thumbnail-fallback" draggable="false">${escapeHtml(domain.slice(0, 2))}</div>`
 
   const faviconHtml = bookmark.favicon
-    ? `<img src="${bookmark.favicon}" alt="" class="card-favicon" draggable="false" onerror="this.style.display='none'">`
+    ? `<img src="${bookmark.favicon}" alt="" class="card-favicon" draggable="false">`
     : ''
 
   card.innerHTML = `
@@ -45,6 +45,14 @@ export function renderCard(bookmark) {
       </div>
     </div>
   `
+
+  // Programmatic favicon error handler to avoid CSP inline handler violations
+  const favImg = card.querySelector('.card-favicon')
+  if (favImg) {
+    favImg.addEventListener('error', () => {
+      favImg.style.display = 'none'
+    })
+  }
 
   card.addEventListener('dragstart', (e) => {
     const el = e.target.nodeType === 1 ? e.target : e.target.parentElement
