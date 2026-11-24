@@ -23,10 +23,16 @@ async function initPopup() {
   setupEventListeners()
   const folders = await getFolders()
 
+  const savedLastFolder = localStorage.getItem('saveit_last_folder') || 'folder_general'
+  const initialFolderId = folders.some(f => f.id === savedLastFolder) ? savedLastFolder : 'folder_general'
+
   folderDropdown = createFolderDropdown({
     container: elements.folderContainer,
     folders,
-    selectedId: 'folder_general'
+    selectedId: initialFolderId,
+    onChange: (folderId) => {
+      try { localStorage.setItem('saveit_last_folder', folderId) } catch {}
+    }
   })
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
@@ -76,12 +82,15 @@ function setupEventListeners() {
     elements.saveBtn.disabled = true
     elements.saveBtn.textContent = 'Saving...'
 
+    const chosenFolderId = folderDropdown.getValue() || 'folder_general'
+    try { localStorage.setItem('saveit_last_folder', chosenFolderId) } catch {}
+
     await saveBookmark({
       url: activeTab.url,
       title: elements.titleInput.value.trim() || activeTab.title || activeTab.url,
       thumbnail: currentThumbnail,
       favicon: getFaviconUrl(activeTab.url, activeTab.favIconUrl),
-      folderId: folderDropdown.getValue() || 'folder_general'
+      folderId: chosenFolderId
     })
 
     elements.saveBtn.textContent = 'Saved!'
