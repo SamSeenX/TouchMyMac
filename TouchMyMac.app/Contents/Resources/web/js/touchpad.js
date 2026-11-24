@@ -85,11 +85,18 @@ export class Touchpad {
   onTouchStart(e) {
     e.preventDefault();
     const count = e.touches.length;
-    this.maxTouchCount = Math.max(this.maxTouchCount, count);
 
     if (this.touches.size === 0) {
       this.startTime = performance.now();
+      this.twoFingerStart = 0;
       this.totalMoveDist = 0;
+      this.maxTouchCount = count;
+    } else {
+      this.maxTouchCount = Math.max(this.maxTouchCount, count);
+    }
+
+    if (count === 2 && this.twoFingerStart === 0) {
+      this.twoFingerStart = performance.now();
     }
 
     for (let i = 0; i < e.changedTouches.length; i++) {
@@ -136,12 +143,13 @@ export class Touchpad {
 
     if (e.touches.length === 0) {
       if (duration < 350 && this.totalMoveDist < 25) {
-        if (this.maxTouchCount === 1) {
-          socket.send({ action: "tap" });
-          this.haptic(20);
-        } else if (this.maxTouchCount === 2) {
+        const twoFingerDur = (this.twoFingerStart > 0) ? (performance.now() - this.twoFingerStart) : 0;
+        if (this.maxTouchCount === 2 && twoFingerDur >= 40) {
           socket.send({ action: "right_tap" });
           this.haptic(35);
+        } else {
+          socket.send({ action: "tap" });
+          this.haptic(20);
         }
       } else if (this.maxTouchCount === 3) {
         for (let i = 0; i < e.changedTouches.length; i++) {

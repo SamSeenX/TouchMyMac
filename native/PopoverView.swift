@@ -8,7 +8,7 @@ public final class PopoverViewController: NSViewController, NetworkManagerDelega
     private let statusDot = NSView(frame: NSRect(x: 0, y: 0, width: 8, height: 8))
     private let permDot = NSView(frame: NSRect(x: 0, y: 0, width: 8, height: 8))
     private let permLabel = NSTextField(labelWithString: "Checking permission...")
-    private let permBtn = NSButton(title: "Enable Mouse Control", target: nil, action: nil)
+    private let permBtn = NSButton()
     private let qrImageView = NSImageView()
     private let urlLabel = NSTextField(labelWithString: "")
     private var checkTimer: Timer?
@@ -48,10 +48,16 @@ public final class PopoverViewController: NSViewController, NetworkManagerDelega
         permLabel.frame = NSRect(x: 34, y: 360, width: 220, height: 18)
         view.addSubview(permLabel)
 
+        permBtn.isBordered = false
+        permBtn.wantsLayer = true
+        permBtn.layer?.cornerRadius = 8
+        permBtn.layer?.backgroundColor = tealColor.cgColor
+        permBtn.attributedTitle = NSAttributedString(
+            string: "Enable Mouse Control",
+            attributes: [.foregroundColor: NSColor.white, .font: NSFont.systemFont(ofSize: 11, weight: .bold)]
+        )
         permBtn.target = self
         permBtn.action = #selector(requestAccessibility)
-        permBtn.bezelStyle = .rounded
-        permBtn.font = NSFont.systemFont(ofSize: 11, weight: .semibold)
         permBtn.frame = NSRect(x: 20, y: 325, width: 240, height: 28)
         view.addSubview(permBtn)
 
@@ -81,9 +87,17 @@ public final class PopoverViewController: NSViewController, NetworkManagerDelega
         urlLabel.frame = NSRect(x: 10, y: 55, width: 260, height: 20)
         view.addSubview(urlLabel)
 
-        let quitBtn = NSButton(title: "Quit TouchMyMac", target: self, action: #selector(quitApp))
-        quitBtn.bezelStyle = .rounded
-        quitBtn.font = NSFont.systemFont(ofSize: 11)
+        let quitBtn = NSButton()
+        quitBtn.isBordered = false
+        quitBtn.wantsLayer = true
+        quitBtn.layer?.cornerRadius = 8
+        quitBtn.layer?.backgroundColor = NSColor(red: 0.88, green: 0.83, blue: 0.77, alpha: 1.0).cgColor
+        quitBtn.attributedTitle = NSAttributedString(
+            string: "Quit TouchMyMac",
+            attributes: [.foregroundColor: darkSlate, .font: NSFont.systemFont(ofSize: 11, weight: .medium)]
+        )
+        quitBtn.target = self
+        quitBtn.action = #selector(quitApp)
         quitBtn.frame = NSRect(x: 20, y: 15, width: 240, height: 28)
         view.addSubview(quitBtn)
     }
