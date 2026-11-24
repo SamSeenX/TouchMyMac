@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0b0d13">
+  <title>TouchMyMac Controller</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/decks.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="top-bar">
+      <div class="status-badge">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Connecting...</span>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="wakeLockBtn" title="Keep Screen Awake">☕</button>
+        <button class="icon-btn" id="keyboardBtn" title="Toggle Virtual Keyboard">⌨️</button>
+      </div>
+    </header>
+
+    <main class="trackpad-surface" id="trackpad">
+      <div class="trackpad-hint" id="trackpadHint">
+        1-Finger: Move / Tap<br>
+        2-Finger: Scroll / Right Click<br>
+        3-Finger: Switch Spaces
+      </div>
+    </main>
+
+    <footer class="bottom-deck-container">
+      <nav class="deck-tabs">
+        <button class="deck-tab active" data-tab="media">Media</button>
+        <button class="deck-tab" data-tab="youtube">YouTube</button>
+        <button class="deck-tab" data-tab="shortcuts">Mac Nav</button>
+      </nav>
+
+      <section class="deck-content">
+        <!-- Media Panel -->
+        <div class="panel active" id="panel-media">
+          <div class="panel-row">
+            <button class="deck-btn" data-action="media" data-cmd="mute">
+              <span class="btn-icon">🔇</span>
+              <span class="btn-label">Mute</span>
+            </button>
+            <button class="deck-btn" data-action="media" data-cmd="vol_down">
+              <span class="btn-icon">🔉</span>
+              <span class="btn-label">Vol -</span>
+            </button>
+            <button class="deck-btn primary" data-action="media" data-cmd="play_pause">
+              <span class="btn-icon">⏯️</span>
+              <span class="btn-label">Play/Pause</span>
+            </button>
+            <button class="deck-btn" data-action="media" data-cmd="vol_up">
+              <span class="btn-icon">🔊</span>
+              <span class="btn-label">Vol +</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- YouTube Panel -->
+        <div class="panel" id="panel-youtube">
+          <div class="panel-row">
+            <button class="deck-btn" data-action="yt" data-cmd="seek_back">
+              <span class="btn-icon">⏪</span>
+              <span class="btn-label">-10s (J)</span>
+            </button>
+            <button class="deck-btn primary" data-action="yt" data-cmd="play_pause">
+              <span class="btn-icon">⏯️</span>
+              <span class="btn-label">Play (K)</span>
+            </button>
+            <button class="deck-btn" data-action="yt" data-cmd="seek_fwd">
+              <span class="btn-icon">⏩</span>
+              <span class="btn-label">+10s (L)</span>
+            </button>
+            <button class="deck-btn" data-action="yt" data-cmd="fullscreen">
+              <span class="btn-icon">⛶</span>
+              <span class="btn-label">Full (F)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Shortcuts Panel -->
+        <div class="panel" id="panel-shortcuts">
+          <div class="panel-row">
+            <button class="deck-btn" data-action="desktop" data-dir="left">
+              <span class="btn-icon">◀️</span>
+              <span class="btn-label">Space Left</span>
+            </button>
+            <button class="deck-btn" data-action="key" data-key="escape">
+              <span class="btn-icon">⎋</span>
+              <span class="btn-label">Esc</span>
+            </button>
+            <button class="deck-btn" data-action="key" data-key="enter">
+              <span class="btn-icon">⏎</span>
+              <span class="btn-label">Return</span>
+            </button>
+            <button class="deck-btn" data-action="desktop" data-dir="right">
+              <span class="btn-icon">▶️</span>
+              <span class="btn-label">Space Right</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </footer>
+
+    <!-- Invisible input to capture mobile keyboard -->
+    <input type="text" id="hiddenInput" class="hidden-key-sink" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
