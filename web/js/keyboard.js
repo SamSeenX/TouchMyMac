@@ -59,6 +59,16 @@ export class KeyboardManager {
         setTimeout(() => { this.isInteractingWithBar = false; }, 200);
       });
 
+      if (window.visualViewport) {
+        const updatePos = () => {
+          if (!this.isActive || !this.bar) return;
+          const kbHeight = window.innerHeight - (window.visualViewport.offsetTop + window.visualViewport.height);
+          this.bar.style.bottom = `${Math.max(0, Math.round(kbHeight))}px`;
+        };
+        window.visualViewport.addEventListener("resize", updatePos);
+        window.visualViewport.addEventListener("scroll", updatePos);
+      }
+
       this.bar.addEventListener("click", (e) => {
         const target = e.target.closest("button");
         if (!target) return;
@@ -105,7 +115,10 @@ export class KeyboardManager {
   setInactive() {
     this.isActive = false;
     this.btn.classList.remove("active");
-    if (this.bar) this.bar.hidden = true;
+    if (this.bar) {
+      this.bar.hidden = true;
+      this.bar.style.bottom = "";
+    }
     this.activeModifiers.clear();
     if (this.bar) {
       this.bar.querySelectorAll(".acc-btn.mod").forEach((b) => b.classList.remove("active"));

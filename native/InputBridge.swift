@@ -6,17 +6,42 @@ import CoreGraphics
 public final class InputBridge {
     private static let source = CGEventSource(stateID: .hidSystemState)
 
+    private static var currentPos: CGPoint = .zero
+    private static var lastMoveTimestamp: TimeInterval = 0
+
     public static func getMouseLocation() -> CGPoint {
         guard let event = CGEvent(source: source) else { return .zero }
         return event.location
     }
 
+    public static func fastMove(dx: Double, dy: Double) {
+        let now = ProcessInfo.processInfo.systemUptime
+        if now - lastMoveTimestamp > 0.12 || currentPos == .zero {
+            currentPos = CGEvent(source: source)?.location ?? .zero
+        }
+        lastMoveTimestamp = now
+        let dist = hypot(dx, dy)
+        let steps = min(max(Int(dist / 6.0), 1), 3)
+        let stepX = dx / Double(steps)
+        let stepY = dy / Double(steps)
+        for i in 0..<steps {
+            currentPos.x += stepX
+            currentPos.y += stepY
+            if let event = CGEvent(mouseEventSource: source, mouseType: .mouseMoved, mouseCursorPosition: currentPos, mouseButton: .left) {
+                event.post(tap: .cghidEventTap)
+            }
+            if steps > 1 && i < steps - 1 {
+                usleep(1_200)
+            }
+        }
+    }
+
     public static func move(dx: Double, dy: Double, isDragging: Bool = false) {
         let current = getMouseLocation()
-        let target = CGPoint(x: current.x + dx, y: current.y + dy)
+        currentPos = CGPoint(x: current.x + dx, y: current.y + dy)
         let type: CGEventType = isDragging ? .leftMouseDragged : .mouseMoved
         let button: CGMouseButton = isDragging ? .left : .left
-        if let event = CGEvent(mouseEventSource: source, mouseType: type, mouseCursorPosition: target, mouseButton: button) {
+        if let event = CGEvent(mouseEventSource: source, mouseType: type, mouseCursorPosition: currentPos, mouseButton: button) {
             event.post(tap: .cghidEventTap)
         }
     }

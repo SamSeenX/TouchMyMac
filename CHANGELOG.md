@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.6.0] - 2026-11-24
+### Added
+- Added `window.visualViewport` dynamic offset tracking and `interactive-widget=resizes-content` so the floating keyboard accessory bar floats above the on-screen mobile keyboard.
+- Added smooth point-to-point micro-interpolation in `InputBridge.fastMove` to eliminate pointer jumps and provide gliding cursor movement.
+- Added on-screen Mouse Speed sensitivity controller with live slider (0.8x to 4.0x), quick presets, and 1.35x horizontal travel scaling for widescreen displays.
+- Added zero-install real-time audio streaming via `ScreenCaptureKit` with a 1-tap `🎧` Solo Phone button that automatically mutes the Mac physical speakers.
+- Designed modern SVG brand icon `icon.svg` for TouchMyMac and linked it as the mobile app icon and favicon.
+- Extracted `HTTPServer.swift` and `settings.css` to maintain compliance with the 200-line rule.
+
 ## [2.5.0] - 2026-11-24
 ### Added
 - Created `KeyMap.swift` providing hardware ANSI keycodes and modifier mapping for standard ASCII characters.

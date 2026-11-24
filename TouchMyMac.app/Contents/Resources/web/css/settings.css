@@ -1,0 +1,66 @@
+/* settings.css - Sensitivity and preferences overlay */
+
+.sens-overlay {
+  position: absolute;
+  top: 58px;
+  right: 16px;
+  background-color: rgba(21, 25, 34, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 210px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.sens-overlay[hidden] {
+  display: none;
+}
+
+.sens-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.sens-val {
+  color: var(--accent-hover);
+  font-weight: 700;
+}
+
+.sens-slider {
+  width: 100%;
+  accent-color: var(--accent-primary);
+  height: 6px;
+  cursor: pointer;
+}
+
+.sens-presets {
+  display: flex;
+  gap: 6px;
+}
+
+.sens-chip {
+  flex: 1;
+  padding: 6px 0;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.sens-chip:active {
+  background: var(--accent-primary);
+  color: #fff;
+}

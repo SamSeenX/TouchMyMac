@@ -9,11 +9,11 @@ export class Touchpad {
     this.startTime = 0;
     this.maxTouchCount = 0;
     this.totalMoveDist = 0;
-    this.lastSendTime = 0;
-    this.pendingDelta = { dx: 0, dy: 0 };
-    this.sendTimer = null;
+    this.sensitivity = parseFloat(localStorage.getItem("tmm_sens") || "2.0");
+    this.hBoost = 1.35;
 
     this.bindEvents();
+    this.bindSettings();
   }
 
   bindEvents() {
@@ -22,7 +22,6 @@ export class Touchpad {
     this.el.addEventListener("touchend", (e) => this.onTouchEnd(e), { passive: false });
     this.el.addEventListener("touchcancel", (e) => this.onTouchEnd(e), { passive: false });
 
-    // Physical click bar buttons
     const leftBtn = document.getElementById("leftClickBtn");
     const rightBtn = document.getElementById("rightClickBtn");
     if (leftBtn) {
@@ -39,6 +38,42 @@ export class Touchpad {
         this.haptic(35);
       });
     }
+  }
+
+  bindSettings() {
+    const sensBtn = document.getElementById("sensBtn");
+    const sensOverlay = document.getElementById("sensOverlay");
+    const sensSlider = document.getElementById("sensSlider");
+    const sensVal = document.getElementById("sensVal");
+    const sensLabel = document.getElementById("sensLabel");
+
+    const updateUI = (val) => {
+      this.sensitivity = val;
+      localStorage.setItem("tmm_sens", String(val));
+      if (sensSlider) sensSlider.value = val;
+      if (sensVal) sensVal.textContent = `${val.toFixed(1)}x`;
+      if (sensLabel) sensLabel.textContent = `${val.toFixed(1)}x`;
+    };
+
+    updateUI(this.sensitivity);
+
+    if (sensBtn && sensOverlay) {
+      sensBtn.addEventListener("click", () => {
+        sensOverlay.hidden = !sensOverlay.hidden;
+      });
+    }
+
+    if (sensSlider) {
+      sensSlider.addEventListener("input", (e) => {
+        updateUI(parseFloat(e.target.value));
+      });
+    }
+
+    document.querySelectorAll(".sens-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        updateUI(parseFloat(chip.dataset.val));
+      });
+    });
   }
 
   haptic(ms = 15) {
@@ -76,20 +111,20 @@ export class Touchpad {
         const speed = Math.hypot(rawDx, rawDy);
         this.totalMoveDist += speed;
 
-        // Continuous acceleration curve for smooth 60/120fps tracking
-        const factor = Math.min(Math.max(1.0 + speed * 0.05, 1.0), 2.6);
-        this.queueMove(rawDx * factor, rawDy * factor);
+        const factor = Math.min(Math.max(1.0 + speed * 0.04, 1.0), 2.8);
+        const dx = (rawDx * factor * this.sensitivity * this.hBoost).toFixed(2);
+        const dy = (rawDy * factor * this.sensitivity).toFixed(2);
+        socket.sendRaw(`m:${dx}:${dy}`);
         this.touches.set(t.identifier, { ...prev, x: t.clientX, y: t.clientY });
       }
     } else if (count === 2) {
-      // 2-finger scroll
       const t1 = e.touches[0];
       const prev1 = this.touches.get(t1.identifier);
       if (prev1) {
-        const dy = (t1.clientY - prev1.y) * 1.5;
-        const dx = (t1.clientX - prev1.x) * 1.5;
-        this.totalMoveDist += Math.hypot(dx, dy);
-        socket.send({ action: "scroll", dx: -dx, dy: dy });
+        const dy = ((t1.clientY - prev1.y) * 1.5).toFixed(1);
+        const dx = ((t1.clientX - prev1.x) * 1.5).toFixed(1);
+        this.totalMoveDist += Math.hypot(Number(dx), Number(dy));
+        socket.sendRaw(`s:${dx}:${dy}`);
         this.touches.set(t1.identifier, { ...prev1, x: t1.clientX, y: t1.clientY });
       }
     }
@@ -100,7 +135,6 @@ export class Touchpad {
     const duration = performance.now() - this.startTime;
 
     if (e.touches.length === 0) {
-      // Human tap detection (generous 350ms duration, 25px displacement)
       if (duration < 350 && this.totalMoveDist < 25) {
         if (this.maxTouchCount === 1) {
           socket.send({ action: "tap" });
@@ -130,35 +164,6 @@ export class Touchpad {
       for (let i = 0; i < e.changedTouches.length; i++) {
         this.touches.delete(e.changedTouches[i].identifier);
       }
-    }
-  }
-
-  queueMove(dx, dy) {
-    this.pendingDelta.dx += dx;
-    this.pendingDelta.dy += dy;
-    const now = performance.now();
-
-    if (now - this.lastSendTime >= 8) {
-      this.flushMove();
-      this.lastSendTime = now;
-    } else if (!this.sendTimer) {
-      this.sendTimer = setTimeout(() => {
-        this.flushMove();
-        this.lastSendTime = performance.now();
-        this.sendTimer = null;
-      }, 8);
-    }
-  }
-
-  flushMove() {
-    if (this.pendingDelta.dx !== 0 || this.pendingDelta.dy !== 0) {
-      socket.send({
-        action: "move",
-        dx: this.pendingDelta.dx,
-        dy: this.pendingDelta.dy
-      });
-      this.pendingDelta.dx = 0;
-      this.pendingDelta.dy = 0;
     }
   }
 }

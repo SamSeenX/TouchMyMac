@@ -2,28 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0b0d13">
   <title>TouchMyMac Controller</title>
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/decks.css">
   <link rel="stylesheet" href="css/keyboard.css">
+  <link rel="stylesheet" href="css/settings.css">
 </head>
 <body>
   <div class="app-container">
     <header class="top-bar">
       <div class="status-badge">
+        <img src="icon.svg" class="app-brand-icon" alt="TouchMyMac">
         <span class="status-dot" id="statusDot"></span>
         <span id="statusText">Connecting...</span>
       </div>
       <div class="top-actions">
+        <button class="icon-btn" id="sensBtn" title="Sensitivity">⚡<span id="sensLabel" style="font-size: 10px; margin-left: 1px;">2.0x</span></button>
+        <button class="icon-btn" id="audioBtn" title="Listen on Phone (Mac Muted)">🎧</button>
         <button class="icon-btn" id="wakeLockBtn" title="Keep Screen Awake">☕</button>
         <button class="icon-btn" id="keyboardBtn" title="Toggle Virtual Keyboard">⌨️</button>
       </div>
     </header>
+
+    <!-- Sensitivity Overlay -->
+    <div class="sens-overlay" id="sensOverlay" hidden>
+      <div class="sens-header">
+        <span>Mouse Speed</span>
+        <span class="sens-val" id="sensVal">2.0x</span>
+      </div>
+      <input type="range" class="sens-slider" id="sensSlider" min="0.8" max="4.0" step="0.2" value="2.0">
+      <div class="sens-presets">
+        <button class="sens-chip" data-val="1.4">Normal</button>
+        <button class="sens-chip" data-val="2.0">Fast</button>
+        <button class="sens-chip" data-val="2.8">Turbo</button>
+      </div>
+    </div>
 
     <main class="trackpad-surface" id="trackpad">
       <div class="trackpad-hint" id="trackpadHint">

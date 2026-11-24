@@ -1,4 +1,4 @@
-// socket.js - WebSocket communication client
+// socket.js - WebSocket communication client supporting JSON, raw string, and binary audio frames
 
 import { eventBus } from "./event_bus.js";
 
@@ -7,6 +7,7 @@ class SocketClient {
     this.ws = null;
     this.reconnectTimer = null;
     this.backoff = 1000;
+    this.binaryCallbacks = [];
   }
 
   init() {
@@ -21,10 +22,19 @@ class SocketClient {
     }
 
     this.ws = new WebSocket(url);
+    this.ws.binaryType = "arraybuffer";
 
     this.ws.onopen = () => {
       this.backoff = 1000;
       eventBus.emit("ws:status", { connected: true, text: "Connected" });
+    };
+
+    this.ws.onmessage = (e) => {
+      if (e.data instanceof ArrayBuffer) {
+        for (const cb of this.binaryCallbacks) {
+          cb(e.data);
+        }
+      }
     };
 
     this.ws.onclose = () => {
@@ -49,6 +59,16 @@ class SocketClient {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(data));
     }
+  }
+
+  sendRaw(str) {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(str);
+    }
+  }
+
+  onBinary(callback) {
+    this.binaryCallbacks.push(callback);
   }
 }
 

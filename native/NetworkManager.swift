@@ -1,4 +1,4 @@
-// NetworkManager.swift - Single-port HTTP and WebSocket server on port 8080
+// NetworkManager.swift - Single-port HTTP, WebSocket server, and audio streaming bridge
 
 import Foundation
 import Network
@@ -21,6 +21,11 @@ public final class NetworkManager {
     public func start() {
         self.activeIP = detectLocalIP()
         bindListener(startingPort: 8080)
+        if #available(macOS 13.0, *) {
+            AudioStreamManager.shared.onAudioChunk = { [weak self] chunk in
+                self?.broadcastBinary(chunk)
+            }
+        }
     }
 
     @discardableResult
@@ -87,43 +92,11 @@ public final class NetworkManager {
                 conn.cancel()
                 return
             }
-
             if reqStr.contains("Upgrade: websocket") || reqStr.contains("upgrade: websocket") {
                 self.upgradeWebSocket(conn: conn, request: reqStr)
             } else {
-                self.serveHTTP(conn: conn, request: reqStr)
+                HTTPServer.shared.serve(conn: conn, request: reqStr, webRoot: self.webRoot)
             }
-        }
-    }
-
-    private func serveHTTP(conn: NWConnection, request: String) {
-        let lines = request.components(separatedBy: "\r\n")
-        guard let first = lines.first else { conn.cancel(); return }
-        let parts = first.components(separatedBy: " ")
-        guard parts.count >= 2 else { conn.cancel(); return }
-
-        let pna = "Access-Control-Allow-Origin: *\r\nAccess-Control-Allow-Private-Network: true\r\nAccess-Control-Allow-Methods: GET, POST, OPTIONS\r\nAccess-Control-Allow-Headers: *\r\n"
-
-        if parts[0] == "OPTIONS" {
-            let res = "HTTP/1.1 204 No Content\r\n\(pna)Connection: close\r\n\r\n"
-            conn.send(content: res.data(using: .utf8)!, completion: .contentProcessed({ _ in conn.cancel() }))
-            return
-        }
-
-        var path = parts[1].components(separatedBy: "?").first ?? "/"
-        if path == "/" { path = "/index.html" }
-
-        let fileURL = URL(fileURLWithPath: self.webRoot).appendingPathComponent(path)
-        let mime = path.hasSuffix(".js") ? "application/javascript" : (path.hasSuffix(".css") ? "text/css" : "text/html")
-
-        if let fileData = try? Data(contentsOf: fileURL) {
-            let header = "HTTP/1.1 200 OK\r\nContent-Type: \(mime)\r\nContent-Length: \(fileData.count)\r\n\(pna)Connection: close\r\n\r\n"
-            var response = header.data(using: .utf8)!
-            response.append(fileData)
-            conn.send(content: response, completion: .contentProcessed({ _ in conn.cancel() }))
-        } else {
-            let notFound = "HTTP/1.1 404 Not Found\r\n\(pna)Content-Length: 0\r\nConnection: close\r\n\r\n"
-            conn.send(content: notFound.data(using: .utf8), completion: .contentProcessed({ _ in conn.cancel() }))
         }
     }
 
@@ -157,11 +130,25 @@ public final class NetworkManager {
                 for i in payloadOffset..<data.count {
                     unmasked.append(data[i] ^ maskKey[(i - payloadOffset) % 4])
                 }
-                if let dict = try? JSONSerialization.jsonObject(with: Data(unmasked)) as? [String: Any] {
-                    self.dispatchAction(dict)
-                }
+                self.handlePayload(unmasked)
             }
             self.listenWebSocketFrames(conn: conn)
+        }
+    }
+
+    private func handlePayload(_ unmasked: [UInt8]) {
+        guard let str = String(bytes: unmasked, encoding: .utf8) else { return }
+        if str.starts(with: "m:") {
+            let p = str.dropFirst(2).split(separator: ":")
+            if p.count == 2, let dx = Double(p[0]), let dy = Double(p[1]) { InputBridge.fastMove(dx: dx, dy: dy) }
+            return
+        } else if str.starts(with: "s:") {
+            let p = str.dropFirst(2).split(separator: ":")
+            if p.count == 2, let dx = Double(p[0]), let dy = Double(p[1]) { InputBridge.scroll(dx: -dx, dy: dy) }
+            return
+        }
+        if let dict = try? JSONSerialization.jsonObject(with: Data(unmasked)) as? [String: Any] {
+            dispatchAction(dict)
         }
     }
 
@@ -169,8 +156,7 @@ public final class NetworkManager {
         guard let action = data["action"] as? String else { return }
         let mods = data["modifiers"] as? [String] ?? []
         switch action {
-        case "move":
-            InputBridge.move(dx: data["dx"] as? Double ?? 0, dy: data["dy"] as? Double ?? 0, isDragging: data["drag"] as? Bool ?? false)
+        case "move": InputBridge.move(dx: data["dx"] as? Double ?? 0, dy: data["dy"] as? Double ?? 0, isDragging: data["drag"] as? Bool ?? false)
         case "tap": InputBridge.leftClick()
         case "right_tap": InputBridge.rightClick()
         case "left_down": InputBridge.leftDown()
@@ -181,8 +167,24 @@ public final class NetworkManager {
         case "key": InputBridge.pressKey(data["key"] as? String ?? "", modifiers: mods)
         case "media": InputBridge.mediaAction(data["cmd"] as? String ?? "")
         case "yt": InputBridge.youtubeAction(data["cmd"] as? String ?? "")
+        case "audio_start": if #available(macOS 13.0, *) { AudioStreamManager.shared.start(solo: data["solo"] as? Bool ?? false) }
+        case "audio_stop": if #available(macOS 13.0, *) { AudioStreamManager.shared.stop(unmute: true) }
         default: break
         }
+    }
+
+    public func broadcastBinary(_ payload: Data) {
+        guard !connections.isEmpty else { return }
+        var frame = Data([0x82])
+        let len = payload.count
+        if len <= 125 { frame.append(UInt8(len)) }
+        else if len <= 65535 { frame.append(contentsOf: [126, UInt8((len >> 8) & 0xFF), UInt8(len & 0xFF)]) }
+        else {
+            frame.append(127)
+            for i in (0..<8).reversed() { frame.append(UInt8((len >> (i * 8)) & 0xFF)) }
+        }
+        frame.append(payload)
+        for conn in connections { conn.send(content: frame, completion: .idempotent) }
     }
 
     private func wsAcceptKey(for key: String) -> String {
