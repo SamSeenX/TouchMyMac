@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.0] - 2026-11-24
+### Added
+- Implemented Google Chrome Private Network Access (PNA) compliance in `NetworkManager.swift`.
+- Handled `OPTIONS` preflight requests responding with `204 No Content` and `Access-Control-Allow-Private-Network: true`.
+- Injected `Access-Control-Allow-Private-Network: true` on all HTTP responses to prevent Android Chrome retry loops.
+
 ## [2.2.0] - 2026-11-24
 ### Fixed
 - Disabled macOS AppKit Automatic Termination via `ProcessInfo.processInfo.disableAutomaticTermination` and `applicationShouldTerminateAfterLastWindowClosed -> false`.

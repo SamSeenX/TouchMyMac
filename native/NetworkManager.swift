@@ -98,6 +98,14 @@ public final class NetworkManager {
         let parts = first.components(separatedBy: " ")
         guard parts.count >= 2 else { conn.cancel(); return }
 
+        let pna = "Access-Control-Allow-Origin: *\r\nAccess-Control-Allow-Private-Network: true\r\nAccess-Control-Allow-Methods: GET, POST, OPTIONS\r\nAccess-Control-Allow-Headers: *\r\n"
+
+        if parts[0] == "OPTIONS" {
+            let res = "HTTP/1.1 204 No Content\r\n\(pna)Connection: close\r\n\r\n"
+            conn.send(content: res.data(using: .utf8)!, completion: .contentProcessed({ _ in conn.cancel() }))
+            return
+        }
+
         var path = parts[1].components(separatedBy: "?").first ?? "/"
         if path == "/" { path = "/index.html" }
 
@@ -105,12 +113,12 @@ public final class NetworkManager {
         let mime = path.hasSuffix(".js") ? "application/javascript" : (path.hasSuffix(".css") ? "text/css" : "text/html")
 
         if let fileData = try? Data(contentsOf: fileURL) {
-            let header = "HTTP/1.1 200 OK\r\nContent-Type: \(mime)\r\nContent-Length: \(fileData.count)\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n"
+            let header = "HTTP/1.1 200 OK\r\nContent-Type: \(mime)\r\nContent-Length: \(fileData.count)\r\n\(pna)Connection: close\r\n\r\n"
             var response = header.data(using: .utf8)!
             response.append(fileData)
             conn.send(content: response, completion: .contentProcessed({ _ in conn.cancel() }))
         } else {
-            let notFound = "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n"
+            let notFound = "HTTP/1.1 404 Not Found\r\n\(pna)Content-Length: 0\r\nConnection: close\r\n\r\n"
             conn.send(content: notFound.data(using: .utf8), completion: .contentProcessed({ _ in conn.cancel() }))
         }
     }
