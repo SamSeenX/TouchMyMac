@@ -93,7 +93,14 @@ public final class InputBridge {
     }
 
     public static func switchDesktop(direction: String) {
-        let code: CGKeyCode = (direction == "left") ? 123 : 124
+        let code: CGKeyCode
+        switch direction {
+        case "left": code = 123
+        case "right": code = 124
+        case "up": code = 126
+        case "down": code = 125
+        default: code = 123
+        }
         postKey(code: code, flags: [.maskControl])
     }
 
