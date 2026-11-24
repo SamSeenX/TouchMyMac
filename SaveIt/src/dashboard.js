@@ -15,7 +15,7 @@ let allBookmarks = []
 let allFolders = []
 let activeState = { query: '', folderId: 'folder_all', sort: 'newest', density: 'lg' }
 
-const elements = {
+const el = {
   grid: document.getElementById('bookmarkGrid'),
   emptyState: document.getElementById('emptyState'),
   viewTitle: document.getElementById('viewTitle'),
@@ -44,22 +44,22 @@ async function init() {
   allBookmarks = await getBookmarks()
 
   modalController = setupModals({
-    editModal: elements.editModal,
-    folderModal: elements.folderModal,
+    editModal: el.editModal,
+    folderModal: el.folderModal,
     foldersProvider: () => allFolders
   })
 
   sidebarController = setupSidebar({
-    folderListEl: elements.folderList,
+    folderListEl: el.folderList,
     onSelectFolder: (id) => { activeState.folderId = id; updateView() },
     onDropBookmark: async (bmId, folderId) => { await updateBookmark(bmId, { folderId }) }
   })
 
   const toolbar = setupToolbar({
-    searchInput: elements.searchInput,
-    densitySelect: elements.densitySelect,
-    sortSelect: elements.sortSelect,
-    themeToggleBtn: elements.themeToggleBtn,
+    searchInput: el.searchInput,
+    densitySelect: el.densitySelect,
+    sortSelect: el.sortSelect,
+    themeToggleBtn: el.themeToggleBtn,
     onSearch: (q) => { activeState.query = q; updateView() },
     onDensity: (d) => { activeState.density = d; applyDensity() },
     onSort: (s) => { activeState.sort = s; updateView() }
@@ -68,32 +68,32 @@ async function init() {
   activeState.density = toolbar.currentDensity || 'lg'
   applyDensity()
 
-  elements.addFolderBtn.addEventListener('click', () => modalController.openFolder())
+  el.addFolderBtn.addEventListener('click', () => modalController.openFolder())
 
   const ioModal = setupIoModal({
     modalEl: document.getElementById('ioModal'),
     foldersProvider: () => allFolders,
     bookmarksProvider: () => allBookmarks
   })
-  elements.ioBtn.addEventListener('click', () => ioModal.open())
+  el.ioBtn.addEventListener('click', () => ioModal.open())
 
   setupBatchController({
-    triggerBtn: elements.batchBtn,
-    bannerEl: elements.batchBanner,
-    textEl: elements.batchText,
-    barEl: elements.batchBar,
-    cancelBtn: elements.cancelBatch,
+    triggerBtn: el.batchBtn,
+    bannerEl: el.batchBanner,
+    textEl: el.batchText,
+    barEl: el.batchBar,
+    cancelBtn: el.cancelBatch,
     bookmarksProvider: () => allBookmarks
   })
 
   setupGridActions()
-  setupEventBusListeners()
+  bus.on('bookmarks:changed', async () => { allBookmarks = await getBookmarks(); updateView() })
+  bus.on('folders:changed', async () => { allFolders = await getFolders(); updateView() })
   updateView()
 }
 
 function applyDensity() {
-  elements.grid.classList.remove('density-lg', 'density-md', 'density-sm', 'density-list')
-  elements.grid.classList.add(`density-${activeState.density}`)
+  el.grid.className = `bookmarks-grid density-${activeState.density}`
 }
 
 function updateView() {
@@ -107,71 +107,50 @@ function updateView() {
     const f = allFolders.find(x => x.id === activeState.folderId)
     if (f) title = f.name
   }
-  elements.viewTitle.textContent = title
-  elements.viewCount.textContent = `${filtered.length} item${filtered.length === 1 ? '' : 's'}`
+  el.viewTitle.textContent = title
+  el.viewCount.textContent = `${filtered.length} item${filtered.length === 1 ? '' : 's'}`
 
-  elements.grid.innerHTML = ''
+  el.grid.innerHTML = ''
   if (filtered.length === 0) {
-    elements.emptyState.style.display = 'block'
+    el.emptyState.style.display = 'block'
   } else {
-    elements.emptyState.style.display = 'none'
+    el.emptyState.style.display = 'none'
     const fragment = document.createDocumentFragment()
     filtered.forEach(bm => fragment.appendChild(renderCard(bm)))
-    elements.grid.appendChild(fragment)
+    el.grid.appendChild(fragment)
   }
 }
 
 function setupGridActions() {
-  elements.grid.addEventListener('click', async (e) => {
+  el.grid.addEventListener('click', async (e) => {
     const card = e.target.closest('.bookmark-card')
     if (!card) return
     const id = card.getAttribute('data-id')
-    const bookmark = allBookmarks.find(b => b.id === id)
-    if (!bookmark) return
+    const bm = allBookmarks.find(b => b.id === id)
+    if (!bm) return
 
+    const openTrigger = e.target.closest('[data-action="open"]')
     const refreshBtn = e.target.closest('[data-action="refresh"]')
     const copyBtn = e.target.closest('[data-action="copy"]')
     const editBtn = e.target.closest('[data-action="edit"]')
     const deleteBtn = e.target.closest('[data-action="delete"]')
 
-    if (refreshBtn) {
-      e.preventDefault()
-      e.stopPropagation()
+    if (openTrigger) {
+      window.open(bm.url, '_blank')
+    } else if (refreshBtn) {
       refreshBtn.innerHTML = '&#9203;'
-      const newThumb = await fetchExternalThumbnail(bookmark.url)
-      if (newThumb) {
-        await updateBookmark(id, { thumbnail: newThumb })
-      }
+      const thumb = await fetchExternalThumbnail(bm.url)
+      if (thumb) await updateBookmark(id, { thumbnail: thumb })
       refreshBtn.innerHTML = '&#128260;'
     } else if (copyBtn) {
-      e.preventDefault()
-      e.stopPropagation()
-      await navigator.clipboard.writeText(bookmark.url)
+      await navigator.clipboard.writeText(bm.url)
       copyBtn.innerHTML = '&#10003;'
       setTimeout(() => { copyBtn.innerHTML = '&#128203;' }, 1200)
     } else if (editBtn) {
-      e.preventDefault()
-      e.stopPropagation()
-      modalController.openEdit(bookmark)
-    } else if (deleteBtn) {
-      e.preventDefault()
-      e.stopPropagation()
-      if (confirm(`Delete "${bookmark.title}"?`)) {
-        await deleteBookmark(id)
-      }
+      modalController.openEdit(bm)
+    } else if (deleteBtn && confirm(`Delete "${bm.title}"?`)) {
+      await deleteBookmark(id)
     }
-  })
-}
-
-function setupEventBusListeners() {
-  bus.on('bookmarks:changed', async () => {
-    allBookmarks = await getBookmarks()
-    updateView()
-  })
-
-  bus.on('folders:changed', async () => {
-    allFolders = await getFolders()
-    updateView()
   })
 }
 

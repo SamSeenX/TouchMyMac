@@ -22,32 +22,33 @@ export function renderCard(bookmark) {
     : ''
 
   card.innerHTML = `
-    <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="card-thumbnail-wrap" title="Open: ${safeTitle}" draggable="false">
+    <div class="card-thumbnail-wrap" data-action="open" title="Open: ${safeTitle}" draggable="false">
       ${thumbnailHtml}
       ${pinBadge}
-    </a>
+    </div>
     <div class="card-body">
       <div class="card-header-row">
         ${faviconHtml}
         <span class="card-domain">${escapeHtml(domain)}</span>
       </div>
-      <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="card-title-link" draggable="false">
+      <div class="card-title-link" data-action="open" title="Open: ${safeTitle}">
         <h3 class="card-title" title="${safeTitle}">${safeTitle}</h3>
-      </a>
+      </div>
     </div>
     <div class="card-footer">
       <span class="card-date">${formatDate(bookmark.createdAt)}</span>
       <div class="card-actions">
-        <button class="card-action-btn" data-action="refresh" title="Refresh Thumbnail">&#128260;</button>
-        <button class="card-action-btn" data-action="copy" title="Copy Link">&#128203;</button>
-        <button class="card-action-btn" data-action="edit" title="Edit">&#9998;</button>
-        <button class="card-action-btn" data-action="delete" title="Delete">&#128465;</button>
+        <button type="button" class="card-action-btn" data-action="refresh" title="Refresh Thumbnail">&#128260;</button>
+        <button type="button" class="card-action-btn" data-action="copy" title="Copy Link">&#128203;</button>
+        <button type="button" class="card-action-btn" data-action="edit" title="Edit">&#9998;</button>
+        <button type="button" class="card-action-btn" data-action="delete" title="Delete">&#128465;</button>
       </div>
     </div>
   `
 
   card.addEventListener('dragstart', (e) => {
-    if (e.target.closest('.card-actions')) {
+    const el = e.target.nodeType === 1 ? e.target : e.target.parentElement
+    if (el && el.closest('.card-actions')) {
       e.preventDefault()
       return
     }
