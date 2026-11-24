@@ -1,42 +1,57 @@
-/* tokens.css - Color palette and typography tokens matching ssg.samseen.dev */
+/* tokens.css - Chibi anime pastel design tokens */
 
 :root {
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-  --bg-primary: #fafbfc;
-  --bg-secondary: #f1f5f9;
+  --font-sans: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+  --font-mono: 'SFMono-Regular', Consolas, Menlo, monospace;
+  
+  /* Pastel Dream Palette */
+  --bg-primary: #fff8fa;
+  --bg-secondary: #fbf0f7;
   --bg-surface: #ffffff;
-  --text-primary: #090d16;
-  --text-secondary: #334155;
-  --text-muted: #64748b;
-  --border-color: #e2e8f0;
-  --border-subtle: rgba(0, 0, 0, 0.06);
-  --accent: #4f6ef7;
-  --accent-hover: #3b5bdb;
-  --accent-light: rgba(79, 110, 247, 0.08);
-  --accent-glow: rgba(79, 110, 247, 0.35);
-  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  --header-height: 64px;
-  --max-width: 1080px;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  
+  --text-primary: #2e1c36;
+  --text-secondary: #6e557b;
+  --text-muted: #9f88ad;
+  
+  --border-color: #f7d6e5;
+  --border-subtle: rgba(255, 117, 151, 0.15);
+  
+  --accent: #ff6e91;
+  --accent-hover: #ff547d;
+  --accent-secondary: #a78bfa;
+  --accent-mint: #6ee7b7;
+  --accent-butter: #fed7aa;
+  
+  --accent-light: #fff0f5;
+  --accent-glow: rgba(255, 110, 145, 0.35);
+  --card-shadow: 0 10px 25px -4px rgba(255, 110, 145, 0.12), 0 4px 12px -2px rgba(167, 139, 250, 0.08);
+  
+  --header-height: 68px;
+  --max-width: 1040px;
+  
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
   --radius-pill: 9999px;
   --min-touch-target: 48px;
 }
 
 [data-theme="dark"] {
-  --bg-primary: #080b10;
-  --bg-secondary: #0d1218;
-  --bg-surface: #121822;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --border-color: #1e293b;
-  --border-subtle: rgba(255, 255, 255, 0.07);
-  --accent: #4f6ef7;
-  --accent-hover: #708bf9;
-  --accent-light: rgba(79, 110, 247, 0.15);
-  --accent-glow: rgba(79, 110, 247, 0.45);
-  --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  --bg-primary: #1e1627;
+  --bg-secondary: #271c33;
+  --bg-surface: #30233e;
+  
+  --text-primary: #fff1f6;
+  --text-secondary: #dac5e6;
+  --text-muted: #9e89af;
+  
+  --border-color: #4f3b63;
+  --border-subtle: rgba(255, 110, 145, 0.2);
+  
+  --accent: #ff7597;
+  --accent-hover: #ff91ad;
+  --accent-secondary: #b59bfb;
+  --accent-light: rgba(255, 117, 151, 0.18);
+  --accent-glow: rgba(255, 117, 151, 0.45);
+  --card-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
 }
