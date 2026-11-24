@@ -16,7 +16,7 @@ WS_PORT = 8766
 def main():
     host_ip = get_local_ip()
     token = generate_token()
-    connect_url = f"http://{host_ip}:{HTTP_PORT}/?token={token}&ws={WS_PORT}"
+    connect_url = f"http://{host_ip}:{HTTP_PORT}/index.html?token={token}&ws={WS_PORT}"
 
     # Start network server
     start_services("0.0.0.0", HTTP_PORT, WS_PORT, token)
