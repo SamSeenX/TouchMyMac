@@ -8,9 +8,13 @@
 		<data>
 		DuscF4JMkCNW6AatSZLGXIMbdTI=
 		</data>
+		<key>Resources/web/css/keyboard.css</key>
+		<data>
+		L0qJwY5iSAv65TEK0Ia/Ec4ZyY8=
+		</data>
 		<key>Resources/web/css/layout.css</key>
 		<data>
-		+arFPsShYi8kkzwbjPx2gLDbvcc=
+		m7Icg/iKTkUtqr/7wkwvMJ7gVFI=
 		</data>
 		<key>Resources/web/css/tokens.css</key>
 		<data>
@@ -18,11 +22,11 @@
 		</data>
 		<key>Resources/web/index.html</key>
 		<data>
-		xW8tZ4zDBXt9JB+JKnjTnd9MYUQ=
+		SYASzspoJeL8hNtS83xiCGyllog=
 		</data>
 		<key>Resources/web/js/app.js</key>
 		<data>
-		RNp6uyXS27YMpA3kK0tktkH25dA=
+		0C9Q4O9w1w9oQuE1CcS9z9BfSkY=
 		</data>
 		<key>Resources/web/js/decks.js</key>
 		<data>
@@ -34,7 +38,7 @@
 		</data>
 		<key>Resources/web/js/keyboard.js</key>
 		<data>
-		JorU54TEuDWMfhVAIh0txbuICYs=
+		rmfEgMJsffi52tdwzLeltM91Hoc=
 		</data>
 		<key>Resources/web/js/socket.js</key>
 		<data>
@@ -42,7 +46,7 @@
 		</data>
 		<key>Resources/web/js/touchpad.js</key>
 		<data>
-		/IQt4s95hMjESO5lO3Jz6Zt/aAU=
+		Xz9p8szZsYqJ9y1/u+z5FpH2pJY=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -54,11 +58,18 @@
 			abJlZiQ8inmyJ+yuFHzGkEYLZ+aXv7o+x8anbv5SCFs=
 			</data>
 		</dict>
+		<key>Resources/web/css/keyboard.css</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			lJ8i7ftoxLNS1A7Jv/OZFg3Uo/xGjB/mgZoQA7x2+Dc=
+			</data>
+		</dict>
 		<key>Resources/web/css/layout.css</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			icDfnCx7JkwytZoe22obq7hnNt/5nYC69Mgfefwwntc=
+			R4ixBaIo/nFzyoObemv+nJAdy4cew2IpRHgR9+8z8Qs=
 			</data>
 		</dict>
 		<key>Resources/web/css/tokens.css</key>
@@ -72,14 +83,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			pq60MZM+dETYyIJ4HqChhBXlH0IHUrrB0VRa4F1Rjjk=
+			icUMhDu7uMHZaFWq2bEXBCj5VIo+tTTWeuo/XQ+IYDY=
 			</data>
 		</dict>
 		<key>Resources/web/js/app.js</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Ee+o2xPsF9b6bIqVkkYCmtRNPGQVOSKwmyTLLfEUk5k=
+			EqN6a4Gy5DO8v5EedVNT8aC58rrd3ou2N3vrfoVKpko=
 			</data>
 		</dict>
 		<key>Resources/web/js/decks.js</key>
@@ -100,7 +111,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			uNpd833jaXERIrI/zjuCKtRW/E/IO2UgdjkbyQEL5/g=
+			fYnMqwxg+oZ6UkMGQkLS+sOsEvsvo9PtXla4ri+4yTY=
 			</data>
 		</dict>
 		<key>Resources/web/js/socket.js</key>
@@ -114,7 +125,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			/7x6AlQCtbEM7rhlsX61gGGbePEsLlYDufprV3KBjoI=
+			t5WNoWMzO3BVzDPa0H4j+++4ZItktV3HOBFDRdT3oig=
 			</data>
 		</dict>
 	</dict>

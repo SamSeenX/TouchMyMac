@@ -54,10 +54,14 @@ public final class NetworkManager {
     }
 
     private func bindListener(startingPort: UInt16) {
+        let tcpOpts = NWProtocolTCP.Options()
+        tcpOpts.noDelay = true
+        let params = NWParameters(tls: nil, tcp: tcpOpts)
+        params.allowLocalEndpointReuse = true
         var p = startingPort
         while p < startingPort + 10 {
             if let nwPort = NWEndpoint.Port(rawValue: p),
-               let l = try? NWListener(using: .tcp, on: nwPort) {
+               let l = try? NWListener(using: params, on: nwPort) {
                 self.port = p
                 self.listener = l
                 l.newConnectionHandler = { [weak self] conn in self?.handleNewConnection(conn) }
@@ -124,13 +128,9 @@ public final class NetworkManager {
     }
 
     private func upgradeWebSocket(conn: NWConnection, request: String) {
-        var key = ""
-        for line in request.components(separatedBy: "\r\n") {
-            if line.lowercased().starts(with: "sec-websocket-key:") {
-                key = line.components(separatedBy: ":")[1].trimmingCharacters(in: .whitespaces)
-                break
-            }
-        }
+        let key = request.components(separatedBy: "\r\n")
+            .first(where: { $0.lowercased().starts(with: "sec-websocket-key:") })?
+            .components(separatedBy: ":").dropFirst().joined(separator: ":").trimmingCharacters(in: .whitespaces) ?? ""
         let accept = wsAcceptKey(for: key)
         let handshake = "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: \(accept)\r\n\r\n"
         conn.send(content: handshake.data(using: .utf8), completion: .contentProcessed({ [weak self] _ in
@@ -167,15 +167,18 @@ public final class NetworkManager {
 
     private func dispatchAction(_ data: [String: Any]) {
         guard let action = data["action"] as? String else { return }
+        let mods = data["modifiers"] as? [String] ?? []
         switch action {
         case "move":
             InputBridge.move(dx: data["dx"] as? Double ?? 0, dy: data["dy"] as? Double ?? 0, isDragging: data["drag"] as? Bool ?? false)
         case "tap": InputBridge.leftClick()
         case "right_tap": InputBridge.rightClick()
+        case "left_down": InputBridge.leftDown()
+        case "left_up": InputBridge.leftUp()
         case "scroll": InputBridge.scroll(dx: data["dx"] as? Double ?? 0, dy: data["dy"] as? Double ?? 0)
         case "desktop": InputBridge.switchDesktop(direction: data["dir"] as? String ?? "right")
-        case "type": InputBridge.typeText(data["text"] as? String ?? "")
-        case "key": InputBridge.pressKey(data["key"] as? String ?? "")
+        case "type": InputBridge.typeText(data["text"] as? String ?? "", modifiers: mods)
+        case "key": InputBridge.pressKey(data["key"] as? String ?? "", modifiers: mods)
         case "media": InputBridge.mediaAction(data["cmd"] as? String ?? "")
         case "yt": InputBridge.youtubeAction(data["cmd"] as? String ?? "")
         default: break

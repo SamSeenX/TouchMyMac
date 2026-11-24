@@ -1,4 +1,4 @@
-// touchpad.js - Multi-touch tracking, pointer acceleration, and gesture engine
+// touchpad.js - Multi-touch tracking, pointer acceleration, and click engine
 
 import { socket } from "./socket.js";
 
@@ -9,8 +9,9 @@ export class Touchpad {
     this.startTime = 0;
     this.maxTouchCount = 0;
     this.totalMoveDist = 0;
+    this.lastSendTime = 0;
     this.pendingDelta = { dx: 0, dy: 0 };
-    this.isRafScheduled = false;
+    this.sendTimer = null;
 
     this.bindEvents();
   }
@@ -20,6 +21,24 @@ export class Touchpad {
     this.el.addEventListener("touchmove", (e) => this.onTouchMove(e), { passive: false });
     this.el.addEventListener("touchend", (e) => this.onTouchEnd(e), { passive: false });
     this.el.addEventListener("touchcancel", (e) => this.onTouchEnd(e), { passive: false });
+
+    // Physical click bar buttons
+    const leftBtn = document.getElementById("leftClickBtn");
+    const rightBtn = document.getElementById("rightClickBtn");
+    if (leftBtn) {
+      leftBtn.addEventListener("touchstart", (e) => {
+        e.stopPropagation();
+        socket.send({ action: "tap" });
+        this.haptic(20);
+      });
+    }
+    if (rightBtn) {
+      rightBtn.addEventListener("touchstart", (e) => {
+        e.stopPropagation();
+        socket.send({ action: "right_tap" });
+        this.haptic(35);
+      });
+    }
   }
 
   haptic(ms = 15) {
@@ -54,11 +73,11 @@ export class Touchpad {
       if (prev) {
         const rawDx = t.clientX - prev.x;
         const rawDy = t.clientY - prev.y;
-        this.totalMoveDist += Math.hypot(rawDx, rawDy);
-
-        // Pointer acceleration
         const speed = Math.hypot(rawDx, rawDy);
-        const factor = speed > 10 ? 1.8 : speed > 4 ? 1.3 : 1.0;
+        this.totalMoveDist += speed;
+
+        // Continuous acceleration curve for smooth 60/120fps tracking
+        const factor = Math.min(Math.max(1.0 + speed * 0.05, 1.0), 2.6);
         this.queueMove(rawDx * factor, rawDy * factor);
         this.touches.set(t.identifier, { ...prev, x: t.clientX, y: t.clientY });
       }
@@ -80,9 +99,9 @@ export class Touchpad {
     e.preventDefault();
     const duration = performance.now() - this.startTime;
 
-    // Check for tap gestures if movement was minimal
     if (e.touches.length === 0) {
-      if (duration < 250 && this.totalMoveDist < 12) {
+      // Human tap detection (generous 350ms duration, 25px displacement)
+      if (duration < 350 && this.totalMoveDist < 25) {
         if (this.maxTouchCount === 1) {
           socket.send({ action: "tap" });
           this.haptic(20);
@@ -91,7 +110,6 @@ export class Touchpad {
           this.haptic(35);
         }
       } else if (this.maxTouchCount === 3) {
-        // 3-finger swipe detection
         for (let i = 0; i < e.changedTouches.length; i++) {
           const t = e.changedTouches[i];
           const start = this.touches.get(t.identifier);
@@ -118,19 +136,29 @@ export class Touchpad {
   queueMove(dx, dy) {
     this.pendingDelta.dx += dx;
     this.pendingDelta.dy += dy;
+    const now = performance.now();
 
-    if (!this.isRafScheduled) {
-      this.isRafScheduled = true;
-      requestAnimationFrame(() => {
-        socket.send({
-          action: "move",
-          dx: this.pendingDelta.dx,
-          dy: this.pendingDelta.dy
-        });
-        this.pendingDelta.dx = 0;
-        this.pendingDelta.dy = 0;
-        this.isRafScheduled = false;
+    if (now - this.lastSendTime >= 8) {
+      this.flushMove();
+      this.lastSendTime = now;
+    } else if (!this.sendTimer) {
+      this.sendTimer = setTimeout(() => {
+        this.flushMove();
+        this.lastSendTime = performance.now();
+        this.sendTimer = null;
+      }, 8);
+    }
+  }
+
+  flushMove() {
+    if (this.pendingDelta.dx !== 0 || this.pendingDelta.dy !== 0) {
+      socket.send({
+        action: "move",
+        dx: this.pendingDelta.dx,
+        dy: this.pendingDelta.dy
       });
+      this.pendingDelta.dx = 0;
+      this.pendingDelta.dy = 0;
     }
   }
 }

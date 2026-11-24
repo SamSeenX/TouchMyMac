@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.5.0] - 2026-11-24
+### Added
+- Created `KeyMap.swift` providing hardware ANSI keycodes and modifier mapping for standard ASCII characters.
+- Added support for macOS Terminal and shell keystroke synthesis via `CGEventSource(stateID: .hidSystemState)`.
+- Added floating mobile accessory toolbar displaying `Esc`, `Tab`, `Ctrl`, `Opt`, `Cmd`, `Enter`, and directional arrow keys (`←`, `↑`, `↓`, `→`).
+- Added modifier latching support (`Ctrl`, `Opt`, `Cmd`) for terminal commands like `Ctrl+C` and shortcuts.
+- Added tactile Click and Right Click buttons directly to the mobile trackpad surface.
+### Fixed
+- Fixed mouse click drops by synthesizing clicks with `mouseEventClickState = 1` and a 25ms delay between down and up.
+- Fixed cursor jitter and lag by switching to a continuous pointer acceleration curve and 8ms delta streaming with `tcpOptions.noDelay = true`.
+- Relaxed mobile tap-to-click threshold to 350ms duration and 25px displacement for reliable natural tapping.
+
 ## [2.4.0] - 2026-11-24
 ### Added
 - Implemented guided 1-click Accessibility onboarding flow in `PopoverView.swift`.

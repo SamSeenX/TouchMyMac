@@ -12,6 +12,7 @@ function bootstrap() {
   const trackpadEl = document.getElementById("trackpad");
   const keyboardBtn = document.getElementById("keyboardBtn");
   const hiddenInput = document.getElementById("hiddenInput");
+  const accessoryBar = document.getElementById("accessoryBar");
 
   // Subscribe to connection telemetry
   eventBus.on("ws:status", ({ connected, text }) => {
@@ -21,7 +22,7 @@ function bootstrap() {
 
   // Initialize modules
   new Touchpad(trackpadEl);
-  new KeyboardManager(keyboardBtn, hiddenInput);
+  new KeyboardManager(keyboardBtn, hiddenInput, accessoryBar);
   new DeckManager();
 
   // Connect socket

@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/decks.css">
+  <link rel="stylesheet" href="css/keyboard.css">
 </head>
 <body>
   <div class="app-container">
@@ -29,6 +30,10 @@
         1-Finger: Move / Tap<br>
         2-Finger: Scroll / Right Click<br>
         3-Finger: Switch Spaces
+      </div>
+      <div class="trackpad-click-bar">
+        <button class="click-btn" id="leftClickBtn">Click</button>
+        <button class="click-btn right" id="rightClickBtn">Right Click</button>
       </div>
     </main>
 
@@ -107,6 +112,22 @@
         </div>
       </section>
     </footer>
+
+    <!-- Floating Accessory Bar for Virtual Keyboard -->
+    <div class="floating-accessory-bar" id="accessoryBar" hidden>
+      <div class="accessory-row">
+        <button class="acc-btn" data-key="escape">Esc</button>
+        <button class="acc-btn" data-key="tab">Tab</button>
+        <button class="acc-btn mod" data-mod="ctrl">Ctrl</button>
+        <button class="acc-btn mod" data-mod="opt">Opt</button>
+        <button class="acc-btn mod" data-mod="cmd">Cmd</button>
+        <button class="acc-btn" data-key="enter">⏎</button>
+        <button class="acc-btn" data-key="left">←</button>
+        <button class="acc-btn" data-key="up">↑</button>
+        <button class="acc-btn" data-key="down">↓</button>
+        <button class="acc-btn" data-key="right">→</button>
+      </div>
+    </div>
 
     <!-- Invisible input to capture mobile keyboard -->
     <input type="text" id="hiddenInput" class="hidden-key-sink" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
