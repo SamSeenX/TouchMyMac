@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - 2026-11-24
+### Fixed
+- Fixed QR column bit traversal order and format sequence mapping in `qr_codec.py`.
+- Added standard 4-module quiet zone in `gui.py` for instant phone camera autofocus.
+- Compiled native universal Mach-O binary for `TouchMyMac.app/Contents/MacOS/TouchMyMac` to resolve `-10827 (kLSNoExecutableErr)` on Finder double click.
+
 ## [1.0.1] - 2026-11-24
 ### Fixed
 - Self-contained app bundle resources inside `TouchMyMac.app/Contents/Resources/`.

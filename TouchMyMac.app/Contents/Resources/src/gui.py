@@ -43,14 +43,15 @@ class AppWindow:
         )
         subtitle.pack(pady=(0, 16))
 
-        # QR Card
-        qr_card = tk.Frame(container, bg="#FFFFFF", padx=14, pady=14, relief="flat")
+        # QR Card with quiet zone
+        qr_card = tk.Frame(container, bg="#FFFFFF", padx=10, pady=10, relief="flat")
         qr_card.pack(pady=4)
 
         matrix = generate_qr_matrix(self.connect_url)
         grid_size = len(matrix)
         mod_size = 6
-        dim = grid_size * mod_size
+        qz = 4  # 4-module quiet zone for standard QR compliance
+        dim = (grid_size + 2 * qz) * mod_size
 
         self.canvas = tk.Canvas(
             qr_card, width=dim, height=dim, bg="#FFFFFF",
@@ -61,8 +62,10 @@ class AppWindow:
         for r in range(grid_size):
             for c in range(grid_size):
                 if matrix[r][c]:
-                    x0, y0 = c * mod_size, r * mod_size
-                    x1, y1 = x0 + mod_size, y0 + mod_size
+                    x0 = (c + qz) * mod_size
+                    y0 = (r + qz) * mod_size
+                    x1 = x0 + mod_size
+                    y1 = y0 + mod_size
                     self.canvas.create_rectangle(
                         x0, y0, x1, y1, fill="#000000", outline=""
                     )
