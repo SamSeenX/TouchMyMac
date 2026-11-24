@@ -3,14 +3,19 @@
 from src.qr_math import rs_encode
 
 SIZE = 33  # Version 4 is 33x33
-TOTAL_BYTES = 100
 DATA_BYTES = 80
 EC_BYTES = 20
 
+TOP_LEFT_COORDS = [
+    (8, 0), (8, 1), (8, 2), (8, 3), (8, 4), (8, 5),
+    (8, 7), (8, 8), (7, 8), (5, 8), (4, 8), (3, 8),
+    (2, 8), (1, 8), (0, 8)
+]
+
 def _create_empty_grid():
     matrix = [[None for _ in range(SIZE)] for _ in range(SIZE)]
-    is_function = [[False for _ in range(SIZE)] for _ in range(SIZE)]
-    return matrix, is_function
+    is_func = [[False for _ in range(SIZE)] for _ in range(SIZE)]
+    return matrix, is_func
 
 def _place_finder(matrix, is_func, top, left):
     for r in range(-1, 8):
@@ -51,22 +56,21 @@ def _add_function_patterns(matrix, is_func):
     is_func[SIZE - 8][8] = True
 
     # Reserve format info areas
-    for i in range(9):
-        if not is_func[8][i]: is_func[8][i] = True
-        if not is_func[i][8]: is_func[i][8] = True
-    for i in range(SIZE - 8, SIZE):
-        if not is_func[8][i]: is_func[8][i] = True
-        if not is_func[i][8]: is_func[i][8] = True
+    for r, c in TOP_LEFT_COORDS:
+        is_func[r][c] = True
+    for i in range(7):
+        is_func[SIZE - 1 - i][8] = True
+    for i in range(8):
+        is_func[8][SIZE - 8 + i] = True
 
 def _build_data_stream(text):
     raw = text.encode("utf-8")
-    bits = [0, 1, 0, 0]  # Byte mode indicator
+    bits = [0, 1, 0, 0]  # Byte mode
     for i in range(7, -1, -1):
         bits.append((len(raw) >> i) & 1)
     for byte in raw:
         for i in range(7, -1, -1):
             bits.append((byte >> i) & 1)
-    # Terminator
     bits.extend([0] * min(4, DATA_BYTES * 8 - len(bits)))
     while len(bits) % 8 != 0:
         bits.append(0)
@@ -87,42 +91,38 @@ def _build_data_stream(text):
     for b in all_bytes:
         for i in range(7, -1, -1):
             final_bits.append((b >> i) & 1)
-    final_bits.extend([0] * 7)  # 7 remainder bits for V4
+    final_bits.extend([0] * 7)  # 7 remainder bits
     return final_bits
 
 def _place_bits_and_mask(matrix, is_func, bits):
     b_idx = 0
     right = SIZE - 1
+    going_up = True
     while right > 0:
         if right == 6:
             right -= 1
         for vert in range(SIZE):
+            row = (SIZE - 1 - vert) if going_up else vert
             for j in range(2):
                 col = right - j
-                row = SIZE - 1 - vert if ((right + 1) // 2) % 2 == 1 else vert
                 if not is_func[row][col]:
                     bit = bits[b_idx] if b_idx < len(bits) else 0
                     b_idx += 1
-                    # Mask pattern 0: (row + col) % 2 == 0
+                    # Mask 0: (row + col) % 2 == 0
                     matrix[row][col] = bool(bit ^ (((row + col) % 2) == 0))
         right -= 2
+        going_up = not going_up
 
 def _apply_format_bits(matrix):
-    # Mask 0, Low Error Correction format sequence (pre-computed BCH): 111011111000100
     format_bits = 0b111011111000100
     for i in range(15):
         bit = bool((format_bits >> (14 - i)) & 1)
-        # Top-left format line
-        if i <= 5: r, c = 8, i
-        elif i == 6: r, c = 8, 7
-        elif i <= 8: r, c = 8, i
-        elif i <= 14: r, c = 14 - i, 8
+        r, c = TOP_LEFT_COORDS[i]
         matrix[r][c] = bit
-        # Bottom-left and top-right format lines
         if i < 7:
             matrix[SIZE - 1 - i][8] = bit
         else:
-            matrix[8][SIZE - 15 + i] = bit
+            matrix[8][SIZE - 8 + (i - 7)] = bit
 
 def generate_qr_matrix(text):
     matrix, is_func = _create_empty_grid()
