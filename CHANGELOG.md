@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.3] - 2026-11-24
+### Fixed
+- Rebuilt complete applet bundle hierarchy with `applet.rsrc` and `Scripts/main.scpt` to resolve `OSStatus error -192 (resNotFound)`.
+- Verified clean launch of `TouchMyMac.app` returning exit code 0.
+
 ## [1.0.2] - 2026-11-24
 ### Fixed
 - Fixed QR column bit traversal order and format sequence mapping in `qr_codec.py`.
