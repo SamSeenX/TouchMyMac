@@ -1,0 +1,42 @@
+/* tokens.css - Color palette and typography tokens matching ssg.samseen.dev */
+
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --bg-primary: #fafbfc;
+  --bg-secondary: #f1f5f9;
+  --bg-surface: #ffffff;
+  --text-primary: #090d16;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --accent: #4f6ef7;
+  --accent-hover: #3b5bdb;
+  --accent-light: rgba(79, 110, 247, 0.08);
+  --accent-glow: rgba(79, 110, 247, 0.35);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --header-height: 64px;
+  --max-width: 1080px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
+  --min-touch-target: 48px;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #080b10;
+  --bg-secondary: #0d1218;
+  --bg-surface: #121822;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-color: #1e293b;
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --accent: #4f6ef7;
+  --accent-hover: #708bf9;
+  --accent-light: rgba(79, 110, 247, 0.15);
+  --accent-glow: rgba(79, 110, 247, 0.45);
+  --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}

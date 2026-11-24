@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.9.0] - 2026-11-24
+### Added
+- Created product promotion landing page in `landingpage/` based on the `ssg.samseen.dev` VanillaSSG architecture, zero hydration, theme toggle, and compact 1:1 OpenGraph thumbnail.
+- Rewrote root `README.md` to focus entirely on product promotion and direct GitHub release downloads, removing terminal build and cloning instructions.
+- Added experimental status disclaimer for wireless audio streaming across the landing page and documentation.
+
 ## [2.8.0] - 2026-11-24
 ### Fixed
 - Fixed audio crackle and noise by rewriting `AudioStreamManager` to correctly query `AudioBufferList` channel pointers for non-interleaved CoreAudio planar streams.
