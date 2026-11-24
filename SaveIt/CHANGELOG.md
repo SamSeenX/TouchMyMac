@@ -3,6 +3,7 @@
 ## [Unreleased] - 2026-11-24
 
 ### Added
+* Quick-save popup folder memory: remembers and pre-selects the last used folder across consecutive bookmark saves
 * Interactive live snapshot mode with 2.5s user interaction window to bypass age verification gates, cookie prompts, and overlays
 * Folder deletion action with safe automatic reassignment of child bookmarks to General
 * Subfolder creation with parent selection modal and inline subfolder buttons in sidebar
