@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SaveIt - Bookmarks</title>
   <link rel="stylesheet" href="src/styles/tokens.css">
+  <link rel="stylesheet" href="src/styles/dropdown.css">
   <link rel="stylesheet" href="src/styles/base.css">
   <link rel="stylesheet" href="src/styles/sidebar.css">
   <link rel="stylesheet" href="src/styles/grid.css">
+  <link rel="stylesheet" href="src/styles/list-view.css">
   <link rel="stylesheet" href="src/styles/components.css">
 </head>
 <body>
@@ -25,9 +27,6 @@
       <div class="sidebar-scroll">
         <div class="sidebar-section-title">Folders</div>
         <ul id="folderList" class="sidebar-list"></ul>
-
-        <div class="sidebar-section-title">Tags</div>
-        <div id="tagCloud" class="tag-cloud"></div>
       </div>
     </aside>
 
@@ -39,10 +38,16 @@
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <input type="text" id="searchInput" class="search-input" placeholder="Search bookmarks by title, url, tags... (Cmd+K)">
+          <input type="text" id="searchInput" class="search-input" placeholder="Search bookmarks by title or url... (Cmd+K)">
         </div>
 
         <div class="navbar-right">
+          <select id="densitySelect" class="select-control" title="Thumbnail Size & Layout">
+            <option value="lg">Large</option>
+            <option value="md">Medium</option>
+            <option value="sm">Small</option>
+            <option value="list">List View</option>
+          </select>
           <select id="sortSelect" class="select-control">
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
@@ -92,11 +97,7 @@
         </div>
         <div>
           <label class="sidebar-section-title">Folder</label>
-          <select id="editFolder" class="input-field"></select>
-        </div>
-        <div>
-          <label class="sidebar-section-title">Labels (comma separated)</label>
-          <input type="text" id="editLabels" class="input-field" placeholder="e.g. dev, design, read-later">
+          <div id="editFolderContainer"></div>
         </div>
       </div>
       <div class="modal-footer">

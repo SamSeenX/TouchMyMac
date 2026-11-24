@@ -69,18 +69,17 @@ export async function deleteBookmark(id) {
   return true
 }
 
-export function filterBookmarks(list, { query = '', folderId = null, label = null, sort = 'newest' }) {
+export function filterBookmarks(list, { query = '', folderId = null, sort = 'newest' }) {
   let filtered = [...list]
 
-  if (folderId && folderId !== 'folder_all') {
+  if (folderId === 'folder_recent') {
+    const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000)
+    filtered = filtered.filter(b => (b.createdAt || 0) >= sevenDaysAgo)
+    if (filtered.length < 5) {
+      filtered = [...list].slice(0, 15)
+    }
+  } else if (folderId && folderId !== 'folder_all') {
     filtered = filtered.filter(b => b.folderId === folderId)
-  }
-
-  if (label) {
-    const cleanLabel = label.toLowerCase().trim()
-    filtered = filtered.filter(b =>
-      Array.isArray(b.labels) && b.labels.some(l => l.toLowerCase() === cleanLabel)
-    )
   }
 
   if (query && query.trim()) {

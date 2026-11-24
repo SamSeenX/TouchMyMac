@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SaveIt</title>
   <link rel="stylesheet" href="src/styles/tokens.css">
+  <link rel="stylesheet" href="src/styles/dropdown.css">
   <link rel="stylesheet" href="src/popup/popup.css">
 </head>
 <body>
@@ -27,15 +28,8 @@
   </div>
 
   <div class="form-group">
-    <label class="form-label" for="folderSelect">Folder</label>
-    <select id="folderSelect" class="select-folder"></select>
-  </div>
-
-  <div class="form-group">
-    <label class="form-label">Labels / Tags</label>
-    <div class="tags-container" id="tagsContainer">
-      <input type="text" id="tagInput" class="tag-input" placeholder="Add tag (Press Enter)...">
-    </div>
+    <label class="form-label">Folder</label>
+    <div id="folderDropdownContainer"></div>
   </div>
 
   <div class="actions-row">

@@ -1,10 +1,10 @@
-// Import and Export modal dialog controller
+// Import and Export modal dialog controller with nested folder support
 
 import { parseNetscapeHtml } from '../utils/html-parser.js'
 import { generateNetscapeHtml } from '../utils/html-generator.js'
 import { exportJsonSnapshot, parseJsonSnapshot } from '../utils/json-io.js'
 import { saveBookmark } from '../core/bookmarks.js'
-import { createFolder } from '../core/folders.js'
+import { createFolder, getFolders } from '../core/folders.js'
 import { bus } from '../core/bus.js'
 
 export function setupIoModal({ modalEl, foldersProvider, bookmarksProvider }) {
@@ -70,28 +70,25 @@ export function setupIoModal({ modalEl, foldersProvider, bookmarksProvider }) {
           count++
         }
       } else {
-        const { folderNames, bookmarks } = parseNetscapeHtml(text)
-        const currentFolders = foldersProvider()
-        const folderNameToId = new Map()
+        const { folderTree, bookmarks } = parseNetscapeHtml(text)
+        const tempIdToRealId = new Map()
 
-        currentFolders.forEach(f => folderNameToId.set(f.name.toLowerCase(), f.id))
-
-        for (const fname of folderNames) {
-          const lower = fname.toLowerCase()
-          if (!folderNameToId.has(lower)) {
-            const created = await createFolder(fname)
-            folderNameToId.set(lower, created.id)
-          }
+        for (const item of folderTree) {
+          const parentRealId = item.parentId ? tempIdToRealId.get(item.parentId) || null : null
+          const created = await createFolder(item.name, parentRealId)
+          tempIdToRealId.set(item.tempId, created.id)
         }
 
         for (const bm of bookmarks) {
-          const folderId = folderNameToId.get((bm.folderName || '').toLowerCase()) || 'folder_general'
+          const folderId = bm.parentFolderTempId
+            ? tempIdToRealId.get(bm.parentFolderTempId) || 'folder_general'
+            : 'folder_general'
           await saveBookmark({ ...bm, folderId })
           count++
         }
       }
 
-      importStatus.textContent = `Successfully imported ${count} bookmarks!`
+      importStatus.textContent = `Successfully imported ${count} bookmarks with folder hierarchy!`
       importStatus.style.color = 'var(--success)'
       bus.emit('bookmarks:changed')
       bus.emit('folders:changed')

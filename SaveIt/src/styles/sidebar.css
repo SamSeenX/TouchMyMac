@@ -1,4 +1,4 @@
-/* Sidebar Layout, Folder Hierarchy and Tag Cloud Styles */
+/* Sidebar Layout, Folder Hierarchy and Drop Target Styles */
 
 .app-sidebar {
   width: 250px;
@@ -47,7 +47,7 @@
   color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  margin: 14px 8px 6px 8px;
+  margin: 10px 8px 6px 8px;
 }
 
 .sidebar-list {
@@ -65,6 +65,7 @@
   transition: all var(--transition);
   margin-bottom: 2px;
   user-select: none;
+  border: 1px solid transparent;
 }
 
 .sidebar-item:hover {
@@ -78,6 +79,12 @@
   font-weight: 600;
 }
 
+.sidebar-item.drag-over {
+  border-color: var(--primary);
+  background-color: var(--primary-light);
+  transform: scale(1.02);
+}
+
 .item-left {
   display: flex;
   align-items: center;
@@ -87,36 +94,14 @@
   white-space: nowrap;
 }
 
+.item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+}
+
 .item-badge {
   font-size: 11px;
   opacity: 0.7;
-}
-
-.tag-cloud {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  padding: 4px 8px;
-}
-
-.tag-filter-chip {
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 12px;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all var(--transition);
-}
-
-.tag-filter-chip:hover {
-  border-color: var(--border-focus);
-  color: var(--text-main);
-}
-
-.tag-filter-chip.active {
-  background: var(--primary);
-  color: #ffffff;
-  border-color: var(--primary);
 }

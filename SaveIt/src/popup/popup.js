@@ -1,29 +1,33 @@
 // Popup controller for capturing, reviewing and saving bookmarks
 
 import { saveBookmark, findBookmarkByUrl } from '../core/bookmarks.js'
-import { getFolders, createFolder } from '../core/folders.js'
+import { getFolders } from '../core/folders.js'
 import { compressThumbnail, getFaviconUrl } from '../utils/capture.js'
-import { escapeHtml } from '../utils/sanitize.js'
+import { createFolderDropdown } from '../components/dropdown.js'
 
 let activeTab = null
 let currentThumbnail = null
-const currentTags = new Set()
+let folderDropdown = null
 
 const elements = {
   statusBadge: document.getElementById('saveStatus'),
   previewImg: document.getElementById('previewImg'),
   previewPlaceholder: document.getElementById('previewPlaceholder'),
   titleInput: document.getElementById('bookmarkTitle'),
-  folderSelect: document.getElementById('folderSelect'),
-  tagsContainer: document.getElementById('tagsContainer'),
-  tagInput: document.getElementById('tagInput'),
+  folderContainer: document.getElementById('folderDropdownContainer'),
   saveBtn: document.getElementById('saveBtn'),
   viewAllBtn: document.getElementById('viewAllBtn')
 }
 
 async function initPopup() {
   setupEventListeners()
-  await populateFolders()
+  const folders = await getFolders()
+
+  folderDropdown = createFolderDropdown({
+    container: elements.folderContainer,
+    folders,
+    selectedId: 'folder_general'
+  })
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
   if (!tab || !tab.url) {
@@ -39,14 +43,8 @@ async function initPopup() {
   if (existing) {
     elements.statusBadge.textContent = 'Already Saved'
     elements.titleInput.value = existing.title
-    if (existing.folderId) elements.folderSelect.value = existing.folderId
-    if (Array.isArray(existing.labels)) {
-      existing.labels.forEach(t => currentTags.add(t))
-      renderTags()
-    }
-    if (existing.thumbnail) {
-      displayThumbnail(existing.thumbnail)
-    }
+    if (existing.folderId) folderDropdown.setValue(existing.folderId)
+    if (existing.thumbnail) displayThumbnail(existing.thumbnail)
   }
 
   // Capture fresh viewport screenshot
@@ -72,51 +70,7 @@ function displayThumbnail(src) {
   elements.previewPlaceholder.style.display = 'none'
 }
 
-async function populateFolders() {
-  const folders = await getFolders()
-  elements.folderSelect.innerHTML = ''
-  folders.forEach(f => {
-    const opt = document.createElement('option')
-    opt.value = f.id
-    opt.textContent = f.name
-    elements.folderSelect.appendChild(opt)
-  })
-}
-
-function renderTags() {
-  const existingChips = elements.tagsContainer.querySelectorAll('.tag-chip')
-  existingChips.forEach(c => c.remove())
-
-  currentTags.forEach(tag => {
-    const chip = document.createElement('span')
-    chip.className = 'tag-chip'
-    chip.innerHTML = `${escapeHtml(tag)} <span class="tag-remove" data-tag="${escapeHtml(tag)}">&times;</span>`
-    elements.tagsContainer.insertBefore(chip, elements.tagInput)
-  })
-}
-
 function setupEventListeners() {
-  elements.tagInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault()
-      const val = elements.tagInput.value.trim().replace(/^#/, '')
-      if (val && !currentTags.has(val)) {
-        currentTags.add(val)
-        renderTags()
-        elements.tagInput.value = ''
-      }
-    }
-  })
-
-  elements.tagsContainer.addEventListener('click', (e) => {
-    const removeBtn = e.target.closest('.tag-remove')
-    if (removeBtn) {
-      const tag = removeBtn.getAttribute('data-tag')
-      currentTags.delete(tag)
-      renderTags()
-    }
-  })
-
   elements.saveBtn.addEventListener('click', async () => {
     if (!activeTab) return
     elements.saveBtn.disabled = true
@@ -127,13 +81,12 @@ function setupEventListeners() {
       title: elements.titleInput.value.trim() || activeTab.title || activeTab.url,
       thumbnail: currentThumbnail,
       favicon: getFaviconUrl(activeTab.url, activeTab.favIconUrl),
-      folderId: elements.folderSelect.value || 'folder_general',
-      labels: Array.from(currentTags)
+      folderId: folderDropdown.getValue() || 'folder_general'
     })
 
     elements.saveBtn.textContent = 'Saved!'
     elements.saveBtn.style.backgroundColor = 'var(--success)'
-    setTimeout(() => window.close(), 700)
+    setTimeout(() => window.close(), 650)
   })
 
   elements.viewAllBtn.addEventListener('click', () => {

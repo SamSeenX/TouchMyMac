@@ -2,31 +2,29 @@
 
 import { updateBookmark } from '../core/bookmarks.js'
 import { createFolder } from '../core/folders.js'
+import { createFolderDropdown } from './dropdown.js'
 
 export function setupModals({ editModal, folderModal, foldersProvider }) {
   const editTitle = document.getElementById('editTitle')
   const editUrl = document.getElementById('editUrl')
-  const editFolder = document.getElementById('editFolder')
-  const editLabels = document.getElementById('editLabels')
+  const editFolderContainer = document.getElementById('editFolderContainer')
   const editBookmarkId = document.getElementById('editBookmarkId')
   const saveEditBtn = document.getElementById('saveEditBtn')
   const newFolderName = document.getElementById('newFolderName')
   const createFolderSubmit = document.getElementById('createFolderSubmit')
 
+  let folderDropdown = null
+
   function openEdit(bookmark) {
     editBookmarkId.value = bookmark.id
     editTitle.value = bookmark.title || ''
     editUrl.value = bookmark.url || ''
-    editLabels.value = (bookmark.labels || []).join(', ')
 
     const folders = foldersProvider()
-    editFolder.innerHTML = ''
-    folders.forEach(f => {
-      const opt = document.createElement('option')
-      opt.value = f.id
-      opt.textContent = f.name
-      if (f.id === bookmark.folderId) opt.selected = true
-      editFolder.appendChild(opt)
+    folderDropdown = createFolderDropdown({
+      container: editFolderContainer,
+      folders,
+      selectedId: bookmark.folderId || 'folder_general'
     })
 
     editModal.classList.add('open')
@@ -54,16 +52,11 @@ export function setupModals({ editModal, folderModal, foldersProvider }) {
   saveEditBtn.addEventListener('click', async () => {
     const id = editBookmarkId.value
     if (!id) return
-    const labels = editLabels.value
-      .split(',')
-      .map(s => s.trim().replace(/^#/, ''))
-      .filter(Boolean)
 
     await updateBookmark(id, {
       title: editTitle.value.trim(),
       url: editUrl.value.trim(),
-      folderId: editFolder.value,
-      labels
+      folderId: folderDropdown ? folderDropdown.getValue() : 'folder_general'
     })
     closeEdit()
   })
@@ -75,7 +68,6 @@ export function setupModals({ editModal, folderModal, foldersProvider }) {
     closeFolder()
   })
 
-  // Close modals on Escape key
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeEdit()

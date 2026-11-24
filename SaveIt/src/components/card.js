@@ -1,4 +1,4 @@
-// Card component rendering visual bookmark cards
+// Card component rendering visual bookmark cards with drag-to-organize support
 
 import { escapeHtml, sanitizeUrl } from '../utils/sanitize.js'
 
@@ -6,11 +6,12 @@ export function renderCard(bookmark) {
   const card = document.createElement('article')
   card.className = 'bookmark-card'
   card.setAttribute('data-id', bookmark.id)
+  card.setAttribute('draggable', 'true')
 
   const domain = extractDomain(bookmark.url)
   const safeUrl = sanitizeUrl(bookmark.url)
   const safeTitle = escapeHtml(bookmark.title || domain)
-  const pinBadge = bookmark.pinned ? '<span class="card-pin-badge">&#9733; Pinned</span>' : ''
+  const pinBadge = bookmark.pinned ? '<span class="card-pin-badge">&#9733;</span>' : ''
 
   const thumbnailHtml = bookmark.thumbnail
     ? `<img src="${bookmark.thumbnail}" alt="${safeTitle}" class="card-thumbnail" loading="lazy">`
@@ -20,13 +21,8 @@ export function renderCard(bookmark) {
     ? `<img src="${bookmark.favicon}" alt="" class="card-favicon" onerror="this.style.display='none'">`
     : ''
 
-  const tagsHtml = (bookmark.labels || [])
-    .slice(0, 3)
-    .map(label => `<span class="card-tag">#${escapeHtml(label)}</span>`)
-    .join('')
-
   card.innerHTML = `
-    <div class="card-thumbnail-wrap" data-action="open">
+    <div class="card-thumbnail-wrap" data-action="open" title="Open: ${safeTitle}">
       ${thumbnailHtml}
       ${pinBadge}
     </div>
@@ -36,10 +32,9 @@ export function renderCard(bookmark) {
         <span class="card-domain">${escapeHtml(domain)}</span>
       </div>
       <h3 class="card-title" data-action="open" title="${safeTitle}">${safeTitle}</h3>
-      <div class="card-tags">${tagsHtml}</div>
     </div>
     <div class="card-footer">
-      <span>${formatDate(bookmark.createdAt)}</span>
+      <span class="card-date">${formatDate(bookmark.createdAt)}</span>
       <div class="card-actions">
         <button class="card-action-btn" data-action="copy" title="Copy Link">&#128203;</button>
         <button class="card-action-btn" data-action="edit" title="Edit">&#9998;</button>
@@ -47,6 +42,16 @@ export function renderCard(bookmark) {
       </div>
     </div>
   `
+
+  card.addEventListener('dragstart', (e) => {
+    e.dataTransfer.setData('text/plain', bookmark.id)
+    e.dataTransfer.effectAllowed = 'move'
+    card.classList.add('dragging')
+  })
+
+  card.addEventListener('dragend', () => {
+    card.classList.remove('dragging')
+  })
 
   return card
 }

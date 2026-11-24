@@ -1,6 +1,6 @@
-// Dashboard main orchestrator
+// Dashboard main orchestrator with drag-drop and multi-density grid
 
-import { getBookmarks, filterBookmarks, deleteBookmark } from './core/bookmarks.js'
+import { getBookmarks, filterBookmarks, updateBookmark, deleteBookmark } from './core/bookmarks.js'
 import { getFolders } from './core/folders.js'
 import { bus } from './core/bus.js'
 import { renderCard } from './components/card.js'
@@ -14,8 +14,8 @@ let allFolders = []
 let activeState = {
   query: '',
   folderId: 'folder_all',
-  label: null,
-  sort: 'newest'
+  sort: 'newest',
+  density: 'lg'
 }
 
 const elements = {
@@ -24,10 +24,10 @@ const elements = {
   viewTitle: document.getElementById('viewTitle'),
   viewCount: document.getElementById('viewCount'),
   searchInput: document.getElementById('searchInput'),
+  densitySelect: document.getElementById('densitySelect'),
   sortSelect: document.getElementById('sortSelect'),
   themeToggleBtn: document.getElementById('themeToggleBtn'),
   folderList: document.getElementById('folderList'),
-  tagCloud: document.getElementById('tagCloud'),
   addFolderBtn: document.getElementById('addFolderBtn'),
   editModal: document.getElementById('editModal'),
   folderModal: document.getElementById('folderModal'),
@@ -49,31 +49,36 @@ async function init() {
 
   sidebarController = setupSidebar({
     folderListEl: elements.folderList,
-    tagCloudEl: elements.tagCloud,
     onSelectFolder: (folderId) => {
       activeState.folderId = folderId
-      activeState.label = null
       updateView()
     },
-    onSelectTag: (tag) => {
-      activeState.label = tag
-      updateView()
+    onDropBookmark: async (bookmarkId, targetFolderId) => {
+      await updateBookmark(bookmarkId, { folderId: targetFolderId })
     }
   })
 
-  setupToolbar({
+  const toolbar = setupToolbar({
     searchInput: elements.searchInput,
+    densitySelect: elements.densitySelect,
     sortSelect: elements.sortSelect,
     themeToggleBtn: elements.themeToggleBtn,
     onSearch: (q) => {
       activeState.query = q
       updateView()
     },
+    onDensity: (d) => {
+      activeState.density = d
+      applyDensity()
+    },
     onSort: (s) => {
       activeState.sort = s
       updateView()
     }
   })
+
+  activeState.density = toolbar.currentDensity || 'lg'
+  applyDensity()
 
   elements.addFolderBtn.addEventListener('click', () => modalController.openFolder())
 
@@ -83,9 +88,15 @@ async function init() {
     bookmarksProvider: () => allBookmarks
   })
   elements.ioBtn.addEventListener('click', () => ioModalController.open())
+
   setupGridActions()
   setupEventBusListeners()
   updateView()
+}
+
+function applyDensity() {
+  elements.grid.classList.remove('density-lg', 'density-md', 'density-sm', 'density-list')
+  elements.grid.classList.add(`density-${activeState.density}`)
 }
 
 function updateView() {
@@ -94,8 +105,8 @@ function updateView() {
 
   // Title update
   let title = 'All Bookmarks'
-  if (activeState.label) {
-    title = `#${activeState.label}`
+  if (activeState.folderId === 'folder_recent') {
+    title = 'Recently Added'
   } else if (activeState.folderId !== 'folder_all') {
     const f = allFolders.find(x => x.id === activeState.folderId)
     if (f) title = f.name

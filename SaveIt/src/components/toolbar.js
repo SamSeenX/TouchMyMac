@@ -1,6 +1,6 @@
-// Toolbar component managing search, sorting and theme toggle
+// Toolbar component managing search, density layout, sorting and theme toggle
 
-export function setupToolbar({ searchInput, sortSelect, themeToggleBtn, onSearch, onSort }) {
+export function setupToolbar({ searchInput, densitySelect, sortSelect, themeToggleBtn, onSearch, onDensity, onSort }) {
   let debounceTimer = null
 
   searchInput.addEventListener('input', () => {
@@ -8,6 +8,15 @@ export function setupToolbar({ searchInput, sortSelect, themeToggleBtn, onSearch
     debounceTimer = setTimeout(() => {
       onSearch(searchInput.value.trim())
     }, 180)
+  })
+
+  // Density switcher
+  const savedDensity = localStorage.getItem('saveit_density') || 'lg'
+  densitySelect.value = savedDensity
+  densitySelect.addEventListener('change', () => {
+    const val = densitySelect.value
+    localStorage.setItem('saveit_density', val)
+    onDensity(val)
   })
 
   sortSelect.addEventListener('change', () => {
@@ -33,4 +42,6 @@ export function setupToolbar({ searchInput, sortSelect, themeToggleBtn, onSearch
     document.documentElement.setAttribute('data-theme', next)
     localStorage.setItem('saveit_theme', next)
   })
+
+  return { currentDensity: savedDensity }
 }
