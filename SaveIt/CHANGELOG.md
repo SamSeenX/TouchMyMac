@@ -3,9 +3,9 @@
 ## [Unreleased] - 2026-11-24
 
 ### Added
-* Completely invisible thumbnail generation: delegates cross-origin metadata fetching to service worker with zero windows opened
-* Offscreen capture positioning: window fallback renders at `left: -20000, top: -20000` so windows never visually flash on screen
-* 100% Local secret background window capture with OpenGraph fallback
+* 100% Silent headless thumbnail engine: zero window popups or flashing windows
+* In-memory background service worker banner extraction with chunked base64 conversion
+* Automatic branded card generator on local canvas for websites without preview banners
 * Batch thumbnail generator queue with live progress bar and stop control
 * Force regenerate option to re-fetch all thumbnails across imported bookmarks
 * Single-item thumbnail refresh button on every bookmark card
@@ -20,6 +20,7 @@
 * Strict sub-200-line modular architecture across all JavaScript and CSS files
 
 ### Fixed
+* Removed all `chrome.windows.create` popups to eliminate window flashing
 * Removed inline `onerror` attribute in `card.js` to eliminate Manifest V3 CSP violation errors
 * Added `host_permissions` in `manifest.json` for origin web requests
 * Added missing `contextMenus` permission to `manifest.json` for right-click saving
