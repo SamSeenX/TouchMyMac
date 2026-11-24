@@ -138,10 +138,15 @@ function setupGridActions() {
     if (openTrigger) {
       window.open(bm.url, '_blank')
     } else if (refreshBtn) {
+      refreshBtn.disabled = true
       refreshBtn.innerHTML = '&#9203;'
-      const thumb = await fetchExternalThumbnail(bm.url, bm)
-      if (thumb) await updateBookmark(id, { thumbnail: thumb })
-      refreshBtn.innerHTML = '&#128260;'
+      try {
+        const thumb = await fetchExternalThumbnail(bm.url, bm)
+        if (thumb) await updateBookmark(id, { thumbnail: thumb })
+      } finally {
+        refreshBtn.disabled = false
+        refreshBtn.innerHTML = '&#128260;'
+      }
     } else if (copyBtn) {
       await navigator.clipboard.writeText(bm.url)
       copyBtn.innerHTML = '&#10003;'

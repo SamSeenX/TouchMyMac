@@ -3,6 +3,8 @@
 ## [Unreleased] - 2026-11-24
 
 ### Added
+* Real visual webpage screenshot capture engine via headless rendering with automatic pre-warm retry
+* Button state locking and busy spinner during single card thumbnail refreshes
 * 100% Silent headless thumbnail engine: zero window popups or flashing windows
 * In-memory background service worker banner extraction with chunked base64 conversion
 * Automatic branded card generator on local canvas for websites without preview banners
