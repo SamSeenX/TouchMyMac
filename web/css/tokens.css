@@ -1,33 +1,33 @@
-/* tokens.css - Chibi anime pastel design tokens for mobile controller */
+/* tokens.css - Medium brightness teal and beige design tokens */
 
 :root {
-  --bg-primary: #fff8fa;
-  --bg-surface: #ffffff;
-  --bg-card: #fef0f6;
-  --bg-active: #fcd9e8;
+  --bg-primary: #eae3d7;
+  --bg-surface: #f4efe8;
+  --bg-card: #fbf8f3;
+  --bg-active: #dcd3c3;
 
-  --accent-primary: #ff6e91;
-  --accent-hover: #ff5277;
-  --accent-secondary: #a78bfa;
-  --accent-glow: rgba(255, 110, 145, 0.28);
+  --accent-primary: #0f766e;
+  --accent-hover: #115e59;
+  --accent-secondary: #14b8a6;
+  --accent-glow: rgba(15, 118, 110, 0.22);
 
-  --text-primary: #2d1f35;
-  --text-secondary: #6e557b;
-  --text-tertiary: #9f88ad;
+  --text-primary: #192422;
+  --text-secondary: #4a5957;
+  --text-tertiary: #7d8e8b;
 
-  --border-color: #f7d4e5;
-  --border-subtle: rgba(255, 110, 145, 0.12);
+  --border-color: #d6ccc0;
+  --border-subtle: rgba(15, 118, 110, 0.1);
 
-  --success: #10b981;
-  --danger: #f43f5e;
-  --warning: #f59e0b;
+  --success: #0f766e;
+  --danger: #dc2626;
+  --warning: #d97706;
 
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
   --radius-pill: 9999px;
 
-  --font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
   --font-mono: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   --min-touch-target: 48px;
