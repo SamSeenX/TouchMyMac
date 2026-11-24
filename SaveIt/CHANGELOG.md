@@ -4,7 +4,9 @@
 
 ### Added
 * Batch thumbnail generator queue with live progress bar and stop control
+* Force regenerate option to re-fetch all thumbnails across imported bookmarks
 * Single-item thumbnail refresh button on every bookmark card
+* Pre-warm rendering delay ensuring mshots delivers full screenshots instead of placeholder logos
 * Native anchor link integration for middle-click and right-click browser navigation
 * External drag-and-drop support with URI list payloads
 * Custom stylized folder dropdown component with inline "+ Create Folder" input
@@ -17,3 +19,5 @@
 
 ### Fixed
 * Added missing `contextMenus` permission to `manifest.json` for right-click saving
+* Fixed inner anchor and image drag collision in `card.js` using `draggable="false"`
+* Fixed mshots URL formatting by ensuring trailing slash and raw URL format to avoid 403 errors
