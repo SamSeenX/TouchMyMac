@@ -1,4 +1,4 @@
-// 100% Local background window capture engine with zero 3rd-party services
+// 100% Local invisible thumbnail generator with Service Worker bridge and offscreen capture
 
 import { compressThumbnail } from './capture.js'
 import { updateBookmark } from '../core/bookmarks.js'
@@ -6,12 +6,29 @@ import { updateBookmark } from '../core/bookmarks.js'
 export async function captureSecretPage(url) {
   if (!url || !url.startsWith('http')) return null
 
+  // 1. Silent Service Worker OpenGraph extraction (Zero windows opened)
+  try {
+    const swResult = await new Promise((resolve) => {
+      chrome.runtime.sendMessage({ action: 'extract_preview', url }, (res) => {
+        resolve(res || null)
+      })
+    })
+
+    if (swResult) {
+      const compressed = await compressThumbnail(swResult, 480, 270)
+      if (compressed) return compressed
+    }
+  } catch {}
+
+  // 2. Offscreen Window Capture (rendered completely off-monitor at left: -20000)
   let winId = null
   try {
     const win = await chrome.windows.create({
       url,
       type: 'popup',
       focused: false,
+      left: -20000,
+      top: -20000,
       width: 1280,
       height: 720
     })
@@ -20,18 +37,17 @@ export async function captureSecretPage(url) {
     const tabId = win.tabs && win.tabs[0] ? win.tabs[0].id : null
 
     if (tabId) {
-      await waitForTabReady(tabId, 8000)
+      await waitForTabReady(tabId, 7000)
     }
 
-    // Short pause for fonts and styles to render
-    await new Promise(r => setTimeout(r, 600))
+    await new Promise(r => setTimeout(r, 500))
 
     const raw = await chrome.tabs.captureVisibleTab(winId, { format: 'jpeg', quality: 75 })
     if (raw) {
       return await compressThumbnail(raw, 480, 270)
     }
   } catch (err) {
-    console.warn(`Background window capture failed for ${url}:`, err.message)
+    console.warn(`Offscreen capture fallback failed for ${url}:`, err.message)
   } finally {
     if (winId !== null) {
       try {
@@ -40,16 +56,15 @@ export async function captureSecretPage(url) {
     }
   }
 
-  // Fallback to direct OpenGraph header extraction if window capture fails
-  return await fetchOgFallback(url)
+  return null
 }
 
-function waitForTabReady(tabId, timeoutMs = 8000) {
+function waitForTabReady(tabId, timeoutMs = 7000) {
   return new Promise((resolve) => {
-    let resolved = false
+    let done = false
     const timer = setTimeout(() => {
-      if (!resolved) {
-        resolved = true
+      if (!done) {
+        done = true
         chrome.tabs.onUpdated.removeListener(listener)
         resolve()
       }
@@ -57,8 +72,8 @@ function waitForTabReady(tabId, timeoutMs = 8000) {
 
     function listener(id, change) {
       if (id === tabId && change.status === 'complete') {
-        if (!resolved) {
-          resolved = true
+        if (!done) {
+          done = true
           clearTimeout(timer)
           chrome.tabs.onUpdated.removeListener(listener)
           resolve()
@@ -70,38 +85,7 @@ function waitForTabReady(tabId, timeoutMs = 8000) {
   })
 }
 
-async function fetchOgFallback(url) {
-  try {
-    const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), 4500)
-    const res = await fetch(url, { signal: controller.signal })
-    clearTimeout(timer)
-
-    if (res.ok) {
-      const html = await res.text()
-      const match = html.match(/<meta[^>]+(?:property|name)=["'](?:og:image|twitter:image)["'][^>]+content=["']([^"']+)["']/i)
-      if (match && match[1]) {
-        const fullImgUrl = new URL(match[1], url).href
-        const imgRes = await fetch(fullImgUrl)
-        if (imgRes.ok) {
-          const blob = await imgRes.blob()
-          const dataUrl = await blobToData(blob)
-          return await compressThumbnail(dataUrl, 480, 270)
-        }
-      }
-    }
-  } catch {}
-  return null
-}
-
-function blobToData(blob) {
-  return new Promise((resolve) => {
-    const reader = new FileReader()
-    reader.onloadend = () => resolve(reader.result)
-    reader.onerror = () => resolve(null)
-    reader.readAsDataURL(blob)
-  })
-}
+export const fetchExternalThumbnail = captureSecretPage
 
 export class BatchThumbnailQueue {
   constructor({ onProgress, onComplete }) {
@@ -120,7 +104,7 @@ export class BatchThumbnailQueue {
     const total = bookmarks.length
     let completed = 0
 
-    // Sequential (1 window at a time) to prevent background window clutter
+    // Sequential queue to keep resource usage minimal and silent
     for (let i = 0; i < bookmarks.length && this.isRunning; i++) {
       const current = bookmarks[i]
       try {
@@ -129,7 +113,7 @@ export class BatchThumbnailQueue {
           await updateBookmark(current.id, { thumbnail })
         }
       } catch (err) {
-        console.warn('Batch item failed:', err)
+        console.warn('Batch item skipped:', err)
       }
       completed++
       if (this.onProgress) {
@@ -145,5 +129,3 @@ export class BatchThumbnailQueue {
     this.isRunning = false
   }
 }
-
-export const fetchExternalThumbnail = captureSecretPage
