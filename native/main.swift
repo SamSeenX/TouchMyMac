@@ -9,6 +9,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         ProcessInfo.processInfo.disableAutomaticTermination("TouchMyMac server runs continuously")
 
+        if let iconPath = Bundle.main.path(forResource: "AppIcon", ofType: "icns") ?? Bundle.main.path(forResource: "AppIcon", ofType: "png"),
+           let icon = NSImage(contentsOfFile: iconPath) {
+            NSApplication.shared.applicationIconImage = icon
+        }
+
         if !AXIsProcessTrusted() {
             let promptKey = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String
             _ = AXIsProcessTrustedWithOptions([promptKey: true] as CFDictionary)

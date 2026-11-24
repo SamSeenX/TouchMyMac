@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.7.0] - 2026-11-24
+### Added
+- Created dedicated right-edge thumb scroll wheel (`ScrollWheel`) with mechanical haptic tick feedback for effortless single-handed scrolling.
+- Converted audio capture to clean 16-bit interleaved stereo PCM to resolve planar audio static and deliver clear sound to phone headphones.
+- Added automatic background reconnect on phone screen unlock using `document.visibilitychange`, window focus listeners, and a 4-second heartbeat.
+- Generated native `AppIcon.icns` from `icon.svg` and bound it to `CFBundleIconFile` and `NSApplication.shared.applicationIconImage`.
+- Expanded YouTube remote control deck with PiP/miniplayer (`I`), speed down (`<`), speed up (`>`), and closed captions (`C`).
+
 ## [2.6.0] - 2026-11-24
 ### Added
 - Added `window.visualViewport` dynamic offset tracking and `interactive-widget=resizes-content` so the floating keyboard accessory bar floats above the on-screen mobile keyboard.

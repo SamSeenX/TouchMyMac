@@ -174,8 +174,8 @@ public final class InputBridge {
 
     public static func youtubeAction(_ cmd: String) {
         let ytKeyMap: [String: String] = [
-            "seek_back": "j", "seek_fwd": "l",
-            "fullscreen": "f", "mute": "m", "play_pause": "k"
+            "seek_back": "j", "seek_fwd": "l", "fullscreen": "f", "mute": "m",
+            "play_pause": "k", "pip": "i", "speed_up": ">", "speed_down": "<", "captions": "c"
         ]
         if let key = ytKeyMap[cmd] {
             typeText(key)

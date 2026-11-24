@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/decks.css">
   <link rel="stylesheet" href="css/keyboard.css">
   <link rel="stylesheet" href="css/settings.css">
+  <link rel="stylesheet" href="css/wheel.css">
 </head>
 <body>
   <div class="app-container">
@@ -49,6 +50,16 @@
         1-Finger: Move / Tap<br>
         2-Finger: Scroll / Right Click<br>
         3-Finger: Switch Spaces
+      </div>
+      <div class="scroll-wheel-strip" id="scrollWheel">
+        <div class="wheel-indicator">
+          <span class="wheel-notch"></span>
+          <span class="wheel-notch"></span>
+          <span class="wheel-notch"></span>
+          <span class="wheel-notch"></span>
+          <span class="wheel-notch"></span>
+        </div>
+        <div class="scroll-wheel-label">SCROLL</div>
       </div>
       <div class="trackpad-click-bar">
         <button class="click-btn" id="leftClickBtn">Click</button>
@@ -104,6 +115,24 @@
             <button class="deck-btn" data-action="yt" data-cmd="fullscreen">
               <span class="btn-icon">⛶</span>
               <span class="btn-label">Full (F)</span>
+            </button>
+          </div>
+          <div class="panel-row">
+            <button class="deck-btn" data-action="yt" data-cmd="speed_down">
+              <span class="btn-icon">🐢</span>
+              <span class="btn-label">Speed - (&lt;)</span>
+            </button>
+            <button class="deck-btn" data-action="yt" data-cmd="speed_up">
+              <span class="btn-icon">🐇</span>
+              <span class="btn-label">Speed + (&gt;)</span>
+            </button>
+            <button class="deck-btn" data-action="yt" data-cmd="pip">
+              <span class="btn-icon">📺</span>
+              <span class="btn-label">PiP (I)</span>
+            </button>
+            <button class="deck-btn" data-action="yt" data-cmd="captions">
+              <span class="btn-icon">💬</span>
+              <span class="btn-label">CC (C)</span>
             </button>
           </div>
         </div>

@@ -6,11 +6,13 @@ import { Touchpad } from "./touchpad.js";
 import { KeyboardManager } from "./keyboard.js";
 import { DeckManager } from "./decks.js";
 import { AudioManager } from "./audio.js";
+import { ScrollWheel } from "./wheel.js";
 
 function bootstrap() {
   const statusDot = document.getElementById("statusDot");
   const statusText = document.getElementById("statusText");
   const trackpadEl = document.getElementById("trackpad");
+  const scrollWheelEl = document.getElementById("scrollWheel");
   const keyboardBtn = document.getElementById("keyboardBtn");
   const audioBtn = document.getElementById("audioBtn");
   const hiddenInput = document.getElementById("hiddenInput");
@@ -22,6 +24,7 @@ function bootstrap() {
   });
 
   new Touchpad(trackpadEl);
+  new ScrollWheel(scrollWheelEl);
   new KeyboardManager(keyboardBtn, hiddenInput, accessoryBar);
   new DeckManager();
   new AudioManager(audioBtn);

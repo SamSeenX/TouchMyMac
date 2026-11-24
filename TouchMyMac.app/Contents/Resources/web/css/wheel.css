@@ -1,0 +1,57 @@
+/* wheel.css - Dedicated right-edge thumb scroll wheel styles */
+
+.scroll-wheel-strip {
+  position: absolute;
+  right: 0;
+  top: 12px;
+  bottom: 74px;
+  width: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.01) 0%, rgba(21, 25, 34, 0.7) 100%);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-top-left-radius: var(--radius-md);
+  border-bottom-left-radius: var(--radius-md);
+  touch-action: none;
+  z-index: 8;
+  cursor: ns-resize;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.scroll-wheel-strip.active {
+  background: rgba(79, 110, 247, 0.15);
+  border-left-color: var(--accent-primary);
+}
+
+.wheel-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+
+.wheel-notch {
+  width: 14px;
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-pill);
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.scroll-wheel-strip.active .wheel-notch {
+  background-color: var(--accent-hover);
+  transform: scaleX(1.3);
+}
+
+.scroll-wheel-label {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-tertiary);
+  margin-top: 14px;
+  user-select: none;
+}

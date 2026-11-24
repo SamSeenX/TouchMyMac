@@ -60,18 +60,17 @@ export class AudioManager {
 
   handleAudioChunk(arrayBuffer) {
     if (!this.isPlaying || !this.ctx) return;
-    const floatData = new Float32Array(arrayBuffer);
-    const numChannels = 2;
-    const numFrames = Math.floor(floatData.length / numChannels);
+    const int16 = new Int16Array(arrayBuffer);
+    const numFrames = Math.floor(int16.length / 2);
     if (numFrames === 0) return;
 
-    const audioBuf = this.ctx.createBuffer(numChannels, numFrames, 48000);
+    const audioBuf = this.ctx.createBuffer(2, numFrames, 48000);
     const ch0 = audioBuf.getChannelData(0);
     const ch1 = audioBuf.getChannelData(1);
 
     for (let i = 0; i < numFrames; i++) {
-      ch0[i] = floatData[i * 2];
-      ch1[i] = floatData[i * 2 + 1];
+      ch0[i] = int16[i * 2] / 32768.0;
+      ch1[i] = int16[i * 2 + 1] / 32768.0;
     }
 
     const src = this.ctx.createBufferSource();
@@ -80,7 +79,7 @@ export class AudioManager {
 
     const now = this.ctx.currentTime;
     if (this.nextTime < now) {
-      this.nextTime = now + 0.005;
+      this.nextTime = now + 0.012;
     }
     src.start(this.nextTime);
     this.nextTime += audioBuf.duration;

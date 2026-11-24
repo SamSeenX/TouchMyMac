@@ -4,9 +4,17 @@
 <dict>
 	<key>files</key>
 	<dict>
+		<key>Resources/AppIcon.icns</key>
+		<data>
+		Et6Xv9nr8g02a7rSjq05Kb8AoBI=
+		</data>
+		<key>Resources/AppIcon.png</key>
+		<data>
+		pnI0CdTidoxq5JUludFbWq/NyL4=
+		</data>
 		<key>Resources/web/css/decks.css</key>
 		<data>
-		DuscF4JMkCNW6AatSZLGXIMbdTI=
+		jiFB6mjGsqH+jbC6Cx2fy2CyXDY=
 		</data>
 		<key>Resources/web/css/keyboard.css</key>
 		<data>
@@ -24,21 +32,25 @@
 		<data>
 		Onx1UwaCC6hxnZ6AYzjVJyIbNtk=
 		</data>
+		<key>Resources/web/css/wheel.css</key>
+		<data>
+		WtGlh7C9qOYRlc++2qJfM4gg9mQ=
+		</data>
 		<key>Resources/web/icon.svg</key>
 		<data>
 		B7uJqr9PdwsubUM6ZwSrVjrX4RE=
 		</data>
 		<key>Resources/web/index.html</key>
 		<data>
-		M27MU9704dWxbViokAWhDL1jr30=
+		qarwaoUd2lwfzJ2xMecwiPmsVF0=
 		</data>
 		<key>Resources/web/js/app.js</key>
 		<data>
-		0anLiiMxbFeGATgL7kmOS6rNLpg=
+		ZrNfe11ti1Nbq+NC40UPam5JjQU=
 		</data>
 		<key>Resources/web/js/audio.js</key>
 		<data>
-		CmiHwgMMXQu8WyAuKiQ06Q3dkJs=
+		X51X8n5mnwpPvLnhXtnAAeWu5B0=
 		</data>
 		<key>Resources/web/js/decks.js</key>
 		<data>
@@ -54,20 +66,38 @@
 		</data>
 		<key>Resources/web/js/socket.js</key>
 		<data>
-		Fw44APHVk2WL9VMIJ3RjzkePGSg=
+		HlcQ6YQD2EUvDrOLRJIcKxn7UC0=
 		</data>
 		<key>Resources/web/js/touchpad.js</key>
 		<data>
 		QNP0OFgA/6MPuVpPq3OSSQYreNw=
 		</data>
+		<key>Resources/web/js/wheel.js</key>
+		<data>
+		afmhMl+IRTerfyb9A9tDQjjN/uI=
+		</data>
 	</dict>
 	<key>files2</key>
 	<dict>
+		<key>Resources/AppIcon.icns</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			JNx8WHtdLzaakvrJVT9jnAcRNXleOkNceinYJBUGupI=
+			</data>
+		</dict>
+		<key>Resources/AppIcon.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Y5k+MWpThgf0dw4/kKaRF1zLdgQQRI0YUnTDFHuOyJo=
+			</data>
+		</dict>
 		<key>Resources/web/css/decks.css</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			abJlZiQ8inmyJ+yuFHzGkEYLZ+aXv7o+x8anbv5SCFs=
+			ivsiaYFnA3CT77Jv6mqUZqDmnvIp68Xg/c7m8jggzCo=
 			</data>
 		</dict>
 		<key>Resources/web/css/keyboard.css</key>
@@ -98,6 +128,13 @@
 			ndifUXPYOSC3HivGJkDEyRahnrrZHaZiAz7HYsIK0jg=
 			</data>
 		</dict>
+		<key>Resources/web/css/wheel.css</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			RRCmlaZ4ydNO/cM/mocdnEnCtC605NtWxPXJrWEG1nI=
+			</data>
+		</dict>
 		<key>Resources/web/icon.svg</key>
 		<dict>
 			<key>hash2</key>
@@ -109,21 +146,21 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			CtUrUy8TYPpo4/hhGMCRzEz7Wg35CsT63gLK+8WbZXI=
+			8URKYt7hOeYtVZrcxySzxlxGNaKB4m+vCxDqIgKB4L4=
 			</data>
 		</dict>
 		<key>Resources/web/js/app.js</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			OAXESgKyuRCDsN1sW3g5YVCvlDr/BLm3dbX0TE66STI=
+			HGfEn/8CMXR070V8btjdceSUxsTkGRHQZj+kwDNURik=
 			</data>
 		</dict>
 		<key>Resources/web/js/audio.js</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			lCgy6rbwSihNFT3VMdf8btxkasMQgb1bkPY7K+2WHYw=
+			PGuXWPxxyfHihEa/Elw9WJkGm0Jd0pLX1oKKlRo9DOU=
 			</data>
 		</dict>
 		<key>Resources/web/js/decks.js</key>
@@ -151,7 +188,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			xPysCu4KzxaT3KZBez8feB/MdvSMKFtNeOH8VklKahA=
+			jX8u4V1t6/+0A7cpTNPqS2rq7flKXhnTbZu6gRtasNE=
 			</data>
 		</dict>
 		<key>Resources/web/js/touchpad.js</key>
@@ -159,6 +196,13 @@
 			<key>hash2</key>
 			<data>
 			PbIEYXQ/eHBeOjJhRELrmBc8VzoKDglIdqa6/EaeNrk=
+			</data>
+		</dict>
+		<key>Resources/web/js/wheel.js</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			L9ilJ0LV0TtMQ1XnvMcUx0nYrSykB65d5ta8Sk07bJQ=
 			</data>
 		</dict>
 	</dict>

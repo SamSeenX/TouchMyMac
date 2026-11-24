@@ -29,7 +29,7 @@ public final class AudioStreamManager: NSObject, SCStreamOutput, SCStreamDelegat
 
             do {
                 let s = SCStream(filter: filter, configuration: config, delegate: self)
-                try s.addStreamOutput(self, type: .audio, sampleHandlerQueue: DispatchQueue(label: "touchmymac.audio"))
+                try s.addStreamOutput(self, type: .audio, sampleHandlerQueue: DispatchQueue(label: "touchmymac.audio", qos: .userInteractive))
                 s.startCapture { [weak self] err in
                     if err == nil {
                         self?.stream = s
@@ -50,14 +50,36 @@ public final class AudioStreamManager: NSObject, SCStreamOutput, SCStreamDelegat
 
     public func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of type: SCStreamOutputType) {
         guard type == .audio, isStreaming else { return }
-        guard let blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer) else { return }
+        guard let formatDesc = CMSampleBufferGetFormatDescription(sampleBuffer),
+              let asbd = CMAudioFormatDescriptionGetStreamBasicDescription(formatDesc)?.pointee else { return }
+        let numSamples = CMSampleBufferGetNumSamples(sampleBuffer)
+        guard numSamples > 0, let blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer) else { return }
+
         var length = 0
         var dataPointer: UnsafeMutablePointer<Int8>?
-        if CMBlockBufferGetDataPointer(blockBuffer, atOffset: 0, lengthAtOffsetOut: nil, totalLengthOut: &length, dataPointerOut: &dataPointer) == noErr,
-           let ptr = dataPointer, length > 0 {
-            let data = Data(bytes: ptr, count: length)
-            onAudioChunk?(data)
+        guard CMBlockBufferGetDataPointer(blockBuffer, atOffset: 0, lengthAtOffsetOut: nil, totalLengthOut: &length, dataPointerOut: &dataPointer) == noErr,
+              let ptr = dataPointer, length >= numSamples * 4 else { return }
+
+        let isNonInterleaved = (asbd.mFormatFlags & kAudioFormatFlagIsNonInterleaved) != 0
+        var pcmData = Data(count: numSamples * 2 * 2)
+
+        pcmData.withUnsafeMutableBytes { outBuf in
+            let out = outBuf.bindMemory(to: Int16.self).baseAddress!
+            let inFloats = ptr.withMemoryRebound(to: Float32.self, capacity: length / 4) { $0 }
+            if isNonInterleaved && length >= numSamples * 8 {
+                let left = inFloats
+                let right = inFloats + numSamples
+                for i in 0..<numSamples {
+                    out[i * 2] = Int16(max(-1.0, min(1.0, left[i])) * 32767.0)
+                    out[i * 2 + 1] = Int16(max(-1.0, min(1.0, right[i])) * 32767.0)
+                }
+            } else {
+                for i in 0..<(numSamples * 2) {
+                    out[i] = Int16(max(-1.0, min(1.0, inFloats[i])) * 32767.0)
+                }
+            }
         }
+        onAudioChunk?(pcmData)
     }
 
     private func setMacMuted(_ muted: Bool) {
