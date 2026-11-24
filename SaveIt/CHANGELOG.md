@@ -3,8 +3,9 @@
 ## [Unreleased] - 2026-11-24
 
 ### Added
-* 100% Local secret background window capture: launches an unfocused window, captures real rendered screen, and closes instantly
-* Fallback to direct OpenGraph header extraction when window capture is restricted
+* Completely invisible thumbnail generation: delegates cross-origin metadata fetching to service worker with zero windows opened
+* Offscreen capture positioning: window fallback renders at `left: -20000, top: -20000` so windows never visually flash on screen
+* 100% Local secret background window capture with OpenGraph fallback
 * Batch thumbnail generator queue with live progress bar and stop control
 * Force regenerate option to re-fetch all thumbnails across imported bookmarks
 * Single-item thumbnail refresh button on every bookmark card
