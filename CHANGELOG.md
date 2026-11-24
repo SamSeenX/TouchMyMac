@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.0] - 2026-11-24
+### Added
+- Professional Mineral Teal and Warm Sand Beige design system across both the landing page and mobile controller.
+- Medium-brightness natural sand canvas (`#EAE3D7`) on mobile, eliminating blinding white glare and dark matrix themes.
+- Replaced emojis with a complete suite of crisp, vector SVG icons across all media, speed, navigation, and top bar buttons.
+- 3-finger vertical gestures: swipe UP to launch Mission Control and swipe DOWN to trigger App Exposé window tiles.
+- Bottom deck tab persistence with YouTube set as the default first deck.
+- Tasteful "Buy Me a Coffee" support integration across landing page header/footer and controller settings.
+### Fixed
+- Fixed native menu bar popover buttons in macOS Dark Mode by replacing system button cells with custom layer-backed teal and sand buttons.
+- Eliminated accidental right-clicks on single-finger taps by requiring two simultaneous touches for at least 40ms.
+- Removed continuous haptic vibration during thumb wheel scrolling, replacing it with subtle tactile ticks strictly on touch contact and release.
+- Boosted thumb scroll sensitivity to 4.8x with flick acceleration for fluid long-page navigation.
+- Added explicit HTTP `Cache-Control: no-cache, no-store, must-revalidate` headers and versioned asset queries to eliminate stale phone browser caching.
+
 ## [2.9.0] - 2026-11-24
 ### Added
 - Created product promotion landing page in `landingpage/` based on the `ssg.samseen.dev` VanillaSSG architecture, zero hydration, theme toggle, and compact 1:1 OpenGraph thumbnail.
