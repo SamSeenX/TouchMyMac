@@ -2,6 +2,9 @@
 
 ## [Unreleased] - 2026-11-24
 
+### Fixed
+* Two-tier interactive camera capture resilience: added `<all_urls>` host permissions for native active tab visible capture, moved debugger attachment to post-settle phase to avoid navigation detaches, and guarded base64 data URIs from CORS rejection in thumbnail compression
+
 ### Added
 * Quick-save popup folder memory: remembers and pre-selects the last used folder across consecutive bookmark saves
 * Interactive live snapshot mode with 2.5s user interaction window to bypass age verification gates, cookie prompts, and overlays
