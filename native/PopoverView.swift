@@ -1,4 +1,4 @@
-// PopoverView.swift - Native macOS dropdown popover view controller
+// PopoverView.swift - Native macOS dropdown popover view controller in teal & beige
 
 import AppKit
 import ApplicationServices
@@ -13,10 +13,16 @@ public final class PopoverViewController: NSViewController, NetworkManagerDelega
     private let urlLabel = NSTextField(labelWithString: "")
     private var checkTimer: Timer?
 
+    private let tealColor = NSColor(red: 0.06, green: 0.46, blue: 0.43, alpha: 1.0)
+    private let darkSlate = NSColor(red: 0.10, green: 0.14, blue: 0.13, alpha: 1.0)
+    private let mutedSlate = NSColor(red: 0.35, green: 0.42, blue: 0.40, alpha: 1.0)
+    private let sandBeige = NSColor(red: 0.96, green: 0.94, blue: 0.92, alpha: 1.0)
+    private let sandBorder = NSColor(red: 0.86, green: 0.81, blue: 0.75, alpha: 1.0)
+
     public override func loadView() {
         self.view = NSView(frame: NSRect(x: 0, y: 0, width: 280, height: 420))
         self.view.wantsLayer = true
-        self.view.layer?.backgroundColor = NSColor(red: 0.07, green: 0.08, blue: 0.11, alpha: 1.0).cgColor
+        self.view.layer?.backgroundColor = sandBeige.cgColor
 
         setupUI()
         NetworkManager.shared.delegate = self
@@ -27,7 +33,7 @@ public final class PopoverViewController: NSViewController, NetworkManagerDelega
     private func setupUI() {
         let titleLabel = NSTextField(labelWithString: "TouchMyMac")
         titleLabel.font = NSFont.systemFont(ofSize: 15, weight: .bold)
-        titleLabel.textColor = .white
+        titleLabel.textColor = darkSlate
         titleLabel.frame = NSRect(x: 20, y: 385, width: 240, height: 22)
         view.addSubview(titleLabel)
 
@@ -38,7 +44,7 @@ public final class PopoverViewController: NSViewController, NetworkManagerDelega
         view.addSubview(permDot)
 
         permLabel.font = NSFont.systemFont(ofSize: 11, weight: .medium)
-        permLabel.textColor = NSColor(white: 0.7, alpha: 1.0)
+        permLabel.textColor = mutedSlate
         permLabel.frame = NSRect(x: 34, y: 360, width: 220, height: 18)
         view.addSubview(permLabel)
 
@@ -56,7 +62,7 @@ public final class PopoverViewController: NSViewController, NetworkManagerDelega
         view.addSubview(statusDot)
 
         statusLabel.font = NSFont.systemFont(ofSize: 11, weight: .medium)
-        statusLabel.textColor = NSColor(white: 0.65, alpha: 1.0)
+        statusLabel.textColor = mutedSlate
         statusLabel.frame = NSRect(x: 34, y: 295, width: 220, height: 18)
         view.addSubview(statusLabel)
 
@@ -65,10 +71,12 @@ public final class PopoverViewController: NSViewController, NetworkManagerDelega
         qrImageView.wantsLayer = true
         qrImageView.layer?.cornerRadius = 10
         qrImageView.layer?.masksToBounds = true
+        qrImageView.layer?.borderColor = sandBorder.cgColor
+        qrImageView.layer?.borderWidth = 1.5
         view.addSubview(qrImageView)
 
-        urlLabel.font = NSFont.monospacedSystemFont(ofSize: 10, weight: .regular)
-        urlLabel.textColor = NSColor.systemBlue
+        urlLabel.font = NSFont.monospacedSystemFont(ofSize: 11, weight: .semibold)
+        urlLabel.textColor = tealColor
         urlLabel.alignment = .center
         urlLabel.frame = NSRect(x: 10, y: 55, width: 260, height: 20)
         view.addSubview(urlLabel)
@@ -89,9 +97,9 @@ public final class PopoverViewController: NSViewController, NetworkManagerDelega
 
     private func updatePermissionState() {
         let isTrusted = AXIsProcessTrusted()
-        permDot.layer?.backgroundColor = isTrusted ? NSColor.systemGreen.cgColor : NSColor.systemOrange.cgColor
+        permDot.layer?.backgroundColor = isTrusted ? tealColor.cgColor : NSColor.systemOrange.cgColor
         permLabel.stringValue = isTrusted ? "Mouse Control: Active" : "Mouse Control: Permission Needed"
-        permLabel.textColor = isTrusted ? NSColor.systemGreen : NSColor.systemOrange
+        permLabel.textColor = isTrusted ? tealColor : NSColor.systemOrange
         permBtn.isHidden = isTrusted
     }
 
@@ -117,9 +125,9 @@ public final class PopoverViewController: NSViewController, NetworkManagerDelega
     public func connectionStatusChanged(isConnected: Bool) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            self.statusDot.layer?.backgroundColor = isConnected ? NSColor.systemGreen.cgColor : NSColor.systemOrange.cgColor
+            self.statusDot.layer?.backgroundColor = isConnected ? self.tealColor.cgColor : NSColor.systemOrange.cgColor
             self.statusLabel.stringValue = isConnected ? "Phone Connected" : "Ready to pair"
-            self.statusLabel.textColor = isConnected ? NSColor.systemGreen : NSColor(white: 0.65, alpha: 1.0)
+            self.statusLabel.textColor = isConnected ? self.tealColor : self.mutedSlate
         }
     }
 

@@ -1,57 +1,61 @@
-/* tokens.css - Chibi anime pastel design tokens */
+/* tokens.css - Refined teal and warm beige professional design system */
 
 :root {
-  --font-sans: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
-  --font-mono: 'SFMono-Regular', Consolas, Menlo, monospace;
-  
-  /* Pastel Dream Palette */
-  --bg-primary: #fff8fa;
-  --bg-secondary: #fbf0f7;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "Inter", "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+
+  /* Warm Beige and Oat Sand Palette */
+  --bg-primary: #faf8f5;
+  --bg-secondary: #f2ece2;
   --bg-surface: #ffffff;
-  
-  --text-primary: #2e1c36;
-  --text-secondary: #6e557b;
-  --text-muted: #9f88ad;
-  
-  --border-color: #f7d6e5;
-  --border-subtle: rgba(255, 117, 151, 0.15);
-  
-  --accent: #ff6e91;
-  --accent-hover: #ff547d;
-  --accent-secondary: #a78bfa;
-  --accent-mint: #6ee7b7;
-  --accent-butter: #fed7aa;
-  
-  --accent-light: #fff0f5;
-  --accent-glow: rgba(255, 110, 145, 0.35);
-  --card-shadow: 0 10px 25px -4px rgba(255, 110, 145, 0.12), 0 4px 12px -2px rgba(167, 139, 250, 0.08);
-  
-  --header-height: 68px;
+  --bg-surface-elevated: #fcfbf9;
+
+  /* Deep Charcoal Slate Ink */
+  --text-primary: #182221;
+  --text-secondary: #485654;
+  --text-muted: #788785;
+
+  /* Warm Sand Borders */
+  --border-color: #e3dad0;
+  --border-subtle: rgba(15, 118, 110, 0.08);
+
+  /* Studio Mineral Teal Accents */
+  --accent: #0f766e;
+  --accent-hover: #115e59;
+  --accent-light: #f0fdfa;
+  --accent-glow: rgba(15, 118, 110, 0.2);
+  --accent-secondary: #2dd4bf;
+  --accent-warm: #b45309;
+
+  --card-shadow: 0 4px 18px -2px rgba(24, 34, 33, 0.05), 0 2px 6px -1px rgba(24, 34, 33, 0.03);
+
+  --header-height: 66px;
   --max-width: 1040px;
-  
-  --radius-sm: 10px;
-  --radius-md: 18px;
-  --radius-lg: 26px;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
   --radius-pill: 9999px;
   --min-touch-target: 48px;
 }
 
 [data-theme="dark"] {
-  --bg-primary: #1e1627;
-  --bg-secondary: #271c33;
-  --bg-surface: #30233e;
-  
-  --text-primary: #fff1f6;
-  --text-secondary: #dac5e6;
-  --text-muted: #9e89af;
-  
-  --border-color: #4f3b63;
-  --border-subtle: rgba(255, 110, 145, 0.2);
-  
-  --accent: #ff7597;
-  --accent-hover: #ff91ad;
-  --accent-secondary: #b59bfb;
-  --accent-light: rgba(255, 117, 151, 0.18);
-  --accent-glow: rgba(255, 117, 151, 0.45);
-  --card-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  --bg-primary: #0f1514;
+  --bg-secondary: #16201e;
+  --bg-surface: #1b2624;
+  --bg-surface-elevated: #22302e;
+
+  --text-primary: #f4f8f7;
+  --text-secondary: #a3b8b5;
+  --text-muted: #6e8481;
+
+  --border-color: #2b3d3a;
+  --border-subtle: rgba(45, 212, 191, 0.12);
+
+  --accent: #2dd4bf;
+  --accent-hover: #5eead4;
+  --accent-light: rgba(45, 212, 191, 0.12);
+  --accent-glow: rgba(45, 212, 191, 0.3);
+  --accent-secondary: #14b8a6;
+  --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
 }
