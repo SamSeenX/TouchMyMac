@@ -7,16 +7,26 @@ export function setupBatchController({ triggerBtn, bannerEl, textEl, barEl, canc
 
   triggerBtn.addEventListener('click', async () => {
     const bookmarks = bookmarksProvider()
+    if (!bookmarks || bookmarks.length === 0) {
+      alert('No bookmarks to process.')
+      return
+    }
+
     const missing = bookmarks.filter(b => !b.thumbnail)
+    let targets = missing
 
     if (missing.length === 0) {
-      alert('All bookmarks already have thumbnails!')
-      return
+      const forceAll = confirm(`All ${bookmarks.length} bookmarks have thumbnails. Would you like to force regenerate all of them?`)
+      if (!forceAll) return
+      targets = bookmarks
+    } else if (missing.length < bookmarks.length) {
+      const choice = confirm(`Found ${missing.length} bookmarks missing thumbnails (out of ${bookmarks.length}).\n\nClick OK to fetch only missing thumbnails.\nClick Cancel to regenerate ALL ${bookmarks.length} thumbnails.`)
+      targets = choice ? missing : bookmarks
     }
 
     bannerEl.style.display = 'flex'
     barEl.style.width = '0%'
-    textEl.textContent = `Generating thumbnails: 0/${missing.length}`
+    textEl.textContent = `Generating thumbnails: 0/${targets.length}`
 
     queue = new BatchThumbnailQueue({
       onProgress: ({ completed, total }) => {
@@ -32,7 +42,7 @@ export function setupBatchController({ triggerBtn, bannerEl, textEl, barEl, canc
       }
     })
 
-    await queue.start(bookmarks)
+    await queue.start(targets)
   })
 
   cancelBtn.addEventListener('click', () => {

@@ -1,4 +1,4 @@
-// Automated thumbnail fetcher and batch queue service
+// Automated thumbnail fetcher and batch queue service with pre-warm retry
 
 import { compressThumbnail } from './capture.js'
 import { updateBookmark } from '../core/bookmarks.js'
@@ -6,8 +6,25 @@ import { updateBookmark } from '../core/bookmarks.js'
 export async function fetchExternalThumbnail(url) {
   if (!url || !url.startsWith('http')) return null
 
-  // WordPress mshots public screenshot service
-  const serviceUrl = `https://s0.wp.com/mshots/v1/${encodeURIComponent(url)}?w=480&h=270`
+  let cleanUrl = url.replace(/#.*$/, '')
+  try {
+    const parsed = new URL(cleanUrl)
+    if (!parsed.pathname || parsed.pathname === '') {
+      parsed.pathname = '/'
+    }
+    cleanUrl = parsed.toString()
+  } catch {
+    if (!cleanUrl.includes('/', 8)) cleanUrl += '/'
+  }
+
+  const baseServiceUrl = `https://s0.wp.com/mshots/v1/${cleanUrl}?w=480&h=270`
+
+  // Pre-warm request to trigger mshots headless browser rendering
+  const prewarm = new Image()
+  prewarm.src = `${baseServiceUrl}&_init=1`
+
+  // Short pause to allow mshots screenshot worker to finish rendering
+  await new Promise(resolve => setTimeout(resolve, 1800))
 
   return new Promise((resolve) => {
     const img = new Image()
@@ -33,7 +50,7 @@ export async function fetchExternalThumbnail(url) {
       resolve(null)
     }
 
-    img.src = serviceUrl
+    img.src = `${baseServiceUrl}&_t=${Date.now()}`
   })
 }
 
@@ -46,24 +63,23 @@ export class BatchThumbnailQueue {
   }
 
   async start(bookmarks) {
-    const missing = bookmarks.filter(b => !b.thumbnail)
-    if (missing.length === 0) {
+    if (!bookmarks || bookmarks.length === 0) {
       if (this.onComplete) this.onComplete(0)
       return
     }
 
     this.isRunning = true
     this.isPaused = false
-    const total = missing.length
+    const total = bookmarks.length
     let completed = 0
 
-    // Concurrency limit: 3 simultaneous requests
-    const concurrency = 3
+    // Concurrency limit: 2 simultaneous requests with spacing
+    const concurrency = 2
     let index = 0
 
     const worker = async () => {
-      while (index < missing.length && this.isRunning && !this.isPaused) {
-        const current = missing[index++]
+      while (index < bookmarks.length && this.isRunning && !this.isPaused) {
+        const current = bookmarks[index++]
         try {
           const thumbnail = await fetchExternalThumbnail(current.url)
           if (thumbnail) {
@@ -80,7 +96,7 @@ export class BatchThumbnailQueue {
     }
 
     const workers = []
-    for (let i = 0; i < Math.min(concurrency, missing.length); i++) {
+    for (let i = 0; i < Math.min(concurrency, bookmarks.length); i++) {
       workers.push(worker())
     }
 

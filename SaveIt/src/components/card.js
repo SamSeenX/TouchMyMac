@@ -14,15 +14,15 @@ export function renderCard(bookmark) {
   const pinBadge = bookmark.pinned ? '<span class="card-pin-badge">&#9733;</span>' : ''
 
   const thumbnailHtml = bookmark.thumbnail
-    ? `<img src="${bookmark.thumbnail}" alt="${safeTitle}" class="card-thumbnail" loading="lazy">`
-    : `<div class="card-thumbnail-fallback">${escapeHtml(domain.slice(0, 2))}</div>`
+    ? `<img src="${bookmark.thumbnail}" alt="${safeTitle}" class="card-thumbnail" loading="lazy" draggable="false">`
+    : `<div class="card-thumbnail-fallback" draggable="false">${escapeHtml(domain.slice(0, 2))}</div>`
 
   const faviconHtml = bookmark.favicon
-    ? `<img src="${bookmark.favicon}" alt="" class="card-favicon" onerror="this.style.display='none'">`
+    ? `<img src="${bookmark.favicon}" alt="" class="card-favicon" draggable="false" onerror="this.style.display='none'">`
     : ''
 
   card.innerHTML = `
-    <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="card-thumbnail-wrap" title="Open: ${safeTitle}">
+    <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="card-thumbnail-wrap" title="Open: ${safeTitle}" draggable="false">
       ${thumbnailHtml}
       ${pinBadge}
     </a>
@@ -31,7 +31,7 @@ export function renderCard(bookmark) {
         ${faviconHtml}
         <span class="card-domain">${escapeHtml(domain)}</span>
       </div>
-      <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="card-title-link">
+      <a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="card-title-link" draggable="false">
         <h3 class="card-title" title="${safeTitle}">${safeTitle}</h3>
       </a>
     </div>
