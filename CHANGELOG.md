@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.4] - 2026-11-24
+### Fixed
+- Upgraded HTTP server to multi-threaded `ThreadingHTTPServer` to eliminate single-threaded socket blocking on concurrent mobile assets.
+- Added explicit CORS and cache control headers.
+- Pointed QR URL directly to `/index.html` to eliminate directory redirect loops.
+
 ## [1.0.3] - 2026-11-24
 ### Fixed
 - Rebuilt complete applet bundle hierarchy with `applet.rsrc` and `Scripts/main.scpt` to resolve `OSStatus error -192 (resNotFound)`.

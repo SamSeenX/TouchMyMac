@@ -1,4 +1,4 @@
-"""server.py - Unified HTTP and WebSocket server for phone controls."""
+"""server.py - Multi-threaded HTTP and WebSocket server for phone controls."""
 
 import json
 import asyncio
@@ -21,19 +21,29 @@ def notify_status():
     if connection_callback:
         connection_callback(len(active_connections) > 0)
 
+class ThreadingHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
+    daemon_threads = True
+    allow_reuse_address = True
+
 class WebHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=get_web_dir(), **kwargs)
+
+    def end_headers(self):
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+        super().end_headers()
 
     def log_message(self, format, *args):
         pass  # Suppress console logging
 
 def start_http_server(host, port):
-    server = socketserver.TCPServer((host, port), WebHandler)
+    server = ThreadingHTTPServer((host, port), WebHandler)
     server.serve_forever()
 
-async def handle_ws(websocket, path, expected_token):
-    query = parse_qs(urlparse(path).query)
+async def handle_ws(websocket, path=None, expected_token=""):
+    actual_path = path or getattr(websocket, "path", "")
+    query = parse_qs(urlparse(actual_path).query)
     token = query.get("token", [""])[0]
     if token != expected_token:
         await websocket.close(4001, "Invalid token")
@@ -79,7 +89,6 @@ def dispatch_command(data):
     elif action == "media":
         mac_input.media_action(data.get("cmd", ""))
     elif action == "yt":
-        # YouTube shortcut keys: j (-10s), l (+10s), f (fullscreen), m (mute)
         yt_map = {
             "seek_back": "j", "seek_fwd": "l",
             "fullscreen": "f", "mute": "m", "play_pause": "k"
@@ -99,7 +108,7 @@ def start_services(host, http_port, ws_port, token):
     def run_ws():
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        bound_handler = lambda ws, path: handle_ws(ws, path, token)
+        bound_handler = lambda ws, path=None: handle_ws(ws, path, token)
         srv = websockets.serve(bound_handler, host, ws_port)
         loop.run_until_complete(srv)
         loop.run_forever()
