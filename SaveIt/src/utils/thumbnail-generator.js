@@ -1,15 +1,21 @@
-// 100% Local invisible thumbnail generator with Service Worker bridge and offscreen capture
+// 100% Silent headless thumbnail generator with Service Worker bridge and local fallback
 
 import { compressThumbnail } from './capture.js'
+import { generateBrandedCard } from './branded-card.js'
 import { updateBookmark } from '../core/bookmarks.js'
 
-export async function captureSecretPage(url) {
+export async function generateSilentThumbnail(bookmark) {
+  const url = bookmark.url
   if (!url || !url.startsWith('http')) return null
 
-  // 1. Silent Service Worker OpenGraph extraction (Zero windows opened)
+  // 1. Try silent background worker extraction for official site preview banners
   try {
     const swResult = await new Promise((resolve) => {
       chrome.runtime.sendMessage({ action: 'extract_preview', url }, (res) => {
+        if (chrome.runtime.lastError) {
+          resolve(null)
+          return
+        }
         resolve(res || null)
       })
     })
@@ -20,72 +26,13 @@ export async function captureSecretPage(url) {
     }
   } catch {}
 
-  // 2. Offscreen Window Capture (rendered completely off-monitor at left: -20000)
-  let winId = null
-  try {
-    const win = await chrome.windows.create({
-      url,
-      type: 'popup',
-      focused: false,
-      left: -20000,
-      top: -20000,
-      width: 1280,
-      height: 720
-    })
-
-    winId = win.id
-    const tabId = win.tabs && win.tabs[0] ? win.tabs[0].id : null
-
-    if (tabId) {
-      await waitForTabReady(tabId, 7000)
-    }
-
-    await new Promise(r => setTimeout(r, 500))
-
-    const raw = await chrome.tabs.captureVisibleTab(winId, { format: 'jpeg', quality: 75 })
-    if (raw) {
-      return await compressThumbnail(raw, 480, 270)
-    }
-  } catch (err) {
-    console.warn(`Offscreen capture fallback failed for ${url}:`, err.message)
-  } finally {
-    if (winId !== null) {
-      try {
-        await chrome.windows.remove(winId)
-      } catch {}
-    }
-  }
-
-  return null
+  // 2. Headless local canvas branded preview card (Zero windows, zero network errors)
+  return await generateBrandedCard(bookmark)
 }
 
-function waitForTabReady(tabId, timeoutMs = 7000) {
-  return new Promise((resolve) => {
-    let done = false
-    const timer = setTimeout(() => {
-      if (!done) {
-        done = true
-        chrome.tabs.onUpdated.removeListener(listener)
-        resolve()
-      }
-    }, timeoutMs)
-
-    function listener(id, change) {
-      if (id === tabId && change.status === 'complete') {
-        if (!done) {
-          done = true
-          clearTimeout(timer)
-          chrome.tabs.onUpdated.removeListener(listener)
-          resolve()
-        }
-      }
-    }
-
-    chrome.tabs.onUpdated.addListener(listener)
-  })
+export const fetchExternalThumbnail = (url, bookmarkObj) => {
+  return generateSilentThumbnail(bookmarkObj || { url })
 }
-
-export const fetchExternalThumbnail = captureSecretPage
 
 export class BatchThumbnailQueue {
   constructor({ onProgress, onComplete }) {
@@ -104,16 +51,16 @@ export class BatchThumbnailQueue {
     const total = bookmarks.length
     let completed = 0
 
-    // Sequential queue to keep resource usage minimal and silent
+    // Process smoothly with micro-pauses
     for (let i = 0; i < bookmarks.length && this.isRunning; i++) {
       const current = bookmarks[i]
       try {
-        const thumbnail = await captureSecretPage(current.url)
+        const thumbnail = await generateSilentThumbnail(current)
         if (thumbnail) {
           await updateBookmark(current.id, { thumbnail })
         }
       } catch (err) {
-        console.warn('Batch item skipped:', err)
+        console.warn('Silent generation skipped:', err)
       }
       completed++
       if (this.onProgress) {

@@ -139,7 +139,7 @@ function setupGridActions() {
       window.open(bm.url, '_blank')
     } else if (refreshBtn) {
       refreshBtn.innerHTML = '&#9203;'
-      const thumb = await fetchExternalThumbnail(bm.url)
+      const thumb = await fetchExternalThumbnail(bm.url, bm)
       if (thumb) await updateBookmark(id, { thumbnail: thumb })
       refreshBtn.innerHTML = '&#128260;'
     } else if (copyBtn) {

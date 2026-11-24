@@ -54,7 +54,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   }
 })
 
-// CORS-bypassing background metadata fetcher using service worker host_permissions
+// Silent background metadata fetcher using service worker host_permissions
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'extract_preview') {
     handleExtractPreview(message.url).then(sendResponse)
@@ -66,13 +66,16 @@ async function handleExtractPreview(url) {
   if (!url || !url.startsWith('http')) return null
   try {
     const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), 6000)
+    const timer = setTimeout(() => controller.abort(), 5500)
     const res = await fetch(url, { signal: controller.signal, headers: { 'Accept': 'text/html' } })
     clearTimeout(timer)
     if (!res.ok) return null
 
     const html = await res.text()
-    const match = html.match(/<meta[^>]+(?:property|name)=["'](?:og:image|twitter:image)["'][^>]+content=["']([^"']+)["']/i)
+    const metaRegex = /<meta[^>]+(?:property|name)=["'](?:og:image|twitter:image|og:image:url|og:image:secure_url)["'][^>]+content=["']([^"']+)["']/i
+    const linkRegex = /<link[^>]+rel=["'](?:image_src|apple-touch-icon)["'][^>]+href=["']([^"']+)["']/i
+
+    const match = html.match(metaRegex) || html.match(linkRegex)
     if (!match || !match[1]) return null
 
     const imgUrl = new URL(match[1], url).href
@@ -82,10 +85,14 @@ async function handleExtractPreview(url) {
     const blob = await imgRes.blob()
     const buffer = await blob.arrayBuffer()
     const bytes = new Uint8Array(buffer)
+
+    // Chunked conversion to prevent call stack issues
     let binary = ''
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i])
+    const chunkSize = 8192
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize))
     }
+
     const base64 = btoa(binary)
     const mime = blob.type || 'image/jpeg'
     return `data:${mime};base64,${base64}`
