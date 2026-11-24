@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.2.0] - 2026-11-24
+### Fixed
+- Disabled macOS AppKit Automatic Termination via `ProcessInfo.processInfo.disableAutomaticTermination` and `applicationShouldTerminateAfterLastWindowClosed -> false`.
+- Added `NSSupportsAutomaticTermination` and `NSSupportsSuddenTermination` keys (`false`) in `Info.plist` to prevent macOS from killing the menu bar background server when the popover closes.
+
 ## [2.1.0] - 2026-11-24
 ### Added
 - Added `NSLocalNetworkUsageDescription` and `NSAppTransportSecurity` to `Info.plist` for macOS Sequoia Local Network Privacy compliance.
