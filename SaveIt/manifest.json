@@ -29,7 +29,8 @@
     "contextMenus"
   ],
   "host_permissions": [
-    "https://s0.wp.com/*"
+    "http://*/*",
+    "https://*/*"
   ],
   "commands": {
     "_execute_action": {

@@ -23,4 +23,4 @@ SaveIt is a clean, visual bookmark manager for your browser. Instead of boring t
 * `storage`: Required to save user preferences such as theme and sort order.
 * `unlimitedStorage`: Required to persist thumbnail images locally in IndexedDB without quota rejection.
 * `contextMenus`: Required to provide right-click options for saving any page or link directly.
-* `host_permissions` (`https://s0.wp.com/*`): Required to fetch automated preview screenshots for imported browser bookmarks that lack local thumbnails.
+* `host_permissions` (`http://*/*`, `https://*/*`): Required to directly fetch webpage OpenGraph preview images locally without third-party proxy services.

@@ -1,4 +1,4 @@
-// Automated thumbnail fetcher and batch queue service with pre-warm retry
+// 100% Local direct thumbnail extractor and batch processor
 
 import { compressThumbnail } from './capture.js'
 import { updateBookmark } from '../core/bookmarks.js'
@@ -6,52 +6,80 @@ import { updateBookmark } from '../core/bookmarks.js'
 export async function fetchExternalThumbnail(url) {
   if (!url || !url.startsWith('http')) return null
 
-  let cleanUrl = url.replace(/#.*$/, '')
+  // 1. Check if the page is currently active in any open Chrome tab
   try {
-    const parsed = new URL(cleanUrl)
-    if (!parsed.pathname || parsed.pathname === '') {
-      parsed.pathname = '/'
+    const tabs = await chrome.tabs.query({})
+    const match = tabs.find(t => t.url && normalizeUrl(t.url) === normalizeUrl(url))
+    if (match && match.active) {
+      const snap = await chrome.tabs.captureVisibleTab(match.windowId, { format: 'jpeg', quality: 75 })
+      const compressed = await compressThumbnail(snap, 480, 270)
+      if (compressed) return compressed
     }
-    cleanUrl = parsed.toString()
   } catch {
-    if (!cleanUrl.includes('/', 8)) cleanUrl += '/'
+    // Continue to direct HTML fetch
   }
 
-  const baseServiceUrl = `https://s0.wp.com/mshots/v1/${cleanUrl}?w=480&h=270`
+  // 2. Direct HTML fetch for OpenGraph and Twitter preview banners
+  try {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 6500)
 
-  // Pre-warm request to trigger mshots headless browser rendering
-  const prewarm = new Image()
-  prewarm.src = `${baseServiceUrl}&_init=1`
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: { 'Accept': 'text/html,application/xhtml+xml' }
+    })
+    clearTimeout(timer)
 
-  // Short pause to allow mshots screenshot worker to finish rendering
-  await new Promise(resolve => setTimeout(resolve, 1800))
-
-  return new Promise((resolve) => {
-    const img = new Image()
-    img.crossOrigin = 'anonymous'
-
-    const timeout = setTimeout(() => {
-      img.src = ''
-      resolve(null)
-    }, 12000)
-
-    img.onload = async () => {
-      clearTimeout(timeout)
-      try {
-        const compressed = await compressThumbnail(img.src, 480, 270)
-        resolve(compressed)
-      } catch {
-        resolve(null)
+    if (res.ok) {
+      const html = await res.text()
+      const imgUrl = extractOgImage(html, url)
+      if (imgUrl) {
+        const imgRes = await fetch(imgUrl)
+        if (imgRes.ok) {
+          const blob = await imgRes.blob()
+          const dataUrl = await blobToDataUrl(blob)
+          const compressed = await compressThumbnail(dataUrl, 480, 270)
+          if (compressed) return compressed
+        }
       }
     }
+  } catch (err) {
+    console.warn(`Direct thumbnail extraction for ${url}:`, err.message)
+  }
 
-    img.onerror = () => {
-      clearTimeout(timeout)
-      resolve(null)
+  return null
+}
+
+function extractOgImage(html, baseUrl) {
+  try {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(html.slice(0, 50000), 'text/html')
+
+    const meta = doc.querySelector(
+      'meta[property="og:image"], meta[name="twitter:image"], meta[property="og:image:secure_url"], meta[name="twitter:image:src"], link[rel="image_src"]'
+    )
+
+    if (meta) {
+      const content = meta.getAttribute('content') || meta.getAttribute('href')
+      if (content && !content.startsWith('data:')) {
+        return new URL(content, baseUrl).href
+      }
     }
+  } catch {}
+  return null
+}
 
-    img.src = `${baseServiceUrl}&_t=${Date.now()}`
+function blobToDataUrl(blob) {
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onloadend = () => resolve(reader.result)
+    reader.onerror = () => resolve(null)
+    reader.readAsDataURL(blob)
   })
+}
+
+function normalizeUrl(u) {
+  return String(u).replace(/#.*$/, '').replace(/\/$/, '').toLowerCase()
 }
 
 export class BatchThumbnailQueue {
@@ -59,7 +87,6 @@ export class BatchThumbnailQueue {
     this.onProgress = onProgress
     this.onComplete = onComplete
     this.isRunning = false
-    this.isPaused = false
   }
 
   async start(bookmarks) {
@@ -69,25 +96,20 @@ export class BatchThumbnailQueue {
     }
 
     this.isRunning = true
-    this.isPaused = false
     const total = bookmarks.length
     let completed = 0
-
-    // Concurrency limit: 2 simultaneous requests with spacing
-    const concurrency = 2
     let index = 0
+    const concurrency = 3
 
     const worker = async () => {
-      while (index < bookmarks.length && this.isRunning && !this.isPaused) {
+      while (index < bookmarks.length && this.isRunning) {
         const current = bookmarks[index++]
         try {
           const thumbnail = await fetchExternalThumbnail(current.url)
           if (thumbnail) {
             await updateBookmark(current.id, { thumbnail })
           }
-        } catch (err) {
-          console.warn(`Failed thumbnail for ${current.url}:`, err)
-        }
+        } catch {}
         completed++
         if (this.onProgress) {
           this.onProgress({ completed, total, currentUrl: current.url })
