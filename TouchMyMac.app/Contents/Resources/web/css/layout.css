@@ -1,0 +1,130 @@
+/* layout.css - Fullscreen trackpad layout and safe-area boundaries */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  position: fixed;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-top: max(var(--safe-top), 12px);
+  padding-bottom: max(var(--safe-bottom), 12px);
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background-color: rgba(21, 25, 34, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  z-index: 10;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--warning);
+}
+
+.status-dot.connected {
+  background-color: var(--success);
+  box-shadow: 0 0 8px var(--success);
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-btn {
+  min-width: var(--min-touch-target);
+  min-height: var(--min-touch-target);
+  border-radius: var(--radius-pill);
+  border: none;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.2s ease;
+}
+
+.icon-btn:active {
+  background-color: var(--bg-active);
+  transform: scale(0.94);
+}
+
+.icon-btn.active {
+  background-color: var(--accent-primary);
+  color: #ffffff;
+}
+
+/* Trackpad Surface */
+.trackpad-surface {
+  flex: 1;
+  position: relative;
+  touch-action: none;
+  background: radial-gradient(circle at center, #151922 0%, #0b0d13 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trackpad-surface::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  pointer-events: none;
+}
+
+.trackpad-hint {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* Hidden input for software keyboard */
+.hidden-key-sink {
+  position: absolute;
+  top: -100px;
+  left: -100px;
+  opacity: 0;
+  pointer-events: none;
+}

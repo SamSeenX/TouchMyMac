@@ -1,5 +1,6 @@
 """gui.py - Native macOS Tkinter window displaying QR code and status."""
 
+import os
 import subprocess
 import tkinter as tk
 from tkinter import ttk
@@ -116,4 +117,13 @@ class AppWindow:
         self.root.after(0, _update)
 
     def start(self):
+        self.root.lift()
+        self.root.attributes("-topmost", True)
+        self.root.after_idle(self.root.attributes, "-topmost", False)
+        self.root.focus_force()
+        try:
+            cmd = f'tell application "System Events" to set frontmost of first process whose unix id is {os.getpid()} to true'
+            subprocess.run(["osascript", "-e", cmd], capture_output=True)
+        except Exception:
+            pass
         self.root.mainloop()
